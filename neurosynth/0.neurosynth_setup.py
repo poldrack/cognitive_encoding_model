@@ -209,13 +209,14 @@ if __name__=='__main__':
         print('loading cached structure')
         n=pickle.load(open('data/neurovault_%dmm.pkl'%resolution,'rb'))
     else:
-        n=Neurosynth(resolution=3)
+        n=Neurosynth(resolution=resolution)
         n.get_dataset()
         n.get_concepts()
         n.get_concept_pmids()
-        n.get_concept_images()
-        n.get_resampled_images()
-        n.load_concept_images()
+        # turns out we probably don't need this
+        #n.get_concept_images()
+        #n.get_resampled_images()
+        #n.load_concept_images()
         n.save()
 
     # fit encoding model
@@ -226,4 +227,3 @@ if __name__=='__main__':
     data=n.dataset.get_image_data(list(n.desmtx.index)).T
     en=ElasticNet()
     en.fit(data,desmtx)
-    
