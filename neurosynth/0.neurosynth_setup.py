@@ -225,5 +225,4 @@ if __name__=='__main__':
     print('loading dataset')
     # put into nsamples X nfeatures
     data=n.dataset.get_image_data(list(n.desmtx.index)).T
-    en=ElasticNet()
-    en.fit(data,desmtx)
+    numpy.save('data/imgdata.npy',data)
