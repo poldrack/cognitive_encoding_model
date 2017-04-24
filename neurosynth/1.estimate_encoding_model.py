@@ -14,5 +14,6 @@ import nilearn.input_data
 from sklearn.linear_model import ElasticNet
 
 data=numpy.load('data/imgdata.npy')
+desmtx=pandas.read_csv('data/desmtx.csv')
 en=ElasticNet()
 en.fit(data,desmtx)
