@@ -198,8 +198,8 @@ class Neurosynth:
         for k in self.concept_pmids.keys():
             pmids=self.concept_pmids[k]
             self.desmtx[k][pmids]=1
-        # drop columns with no matches
-        self.desmtx=self.desmtx.ix[:,self.desmtx.sum()>0]
+        # drop columns with too few matches
+        self.desmtx=self.desmtx.ix[:,self.desmtx.sum()>self.ma_count_thresh]
         self.desmtx.to_csv('data/desmtx.csv')
 
 if __name__=='__main__':
