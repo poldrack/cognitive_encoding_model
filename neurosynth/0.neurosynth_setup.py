@@ -26,7 +26,7 @@ def intersect(a, b):
 
 class Neurosynth:
     def __init__(self,datadir='data',verbose=True,
-                    ma_count_thresh=5,
+                    ma_count_thresh=16,
                     meta_image='consistency_z',
                     resolution=3):
         self.dataset=None
