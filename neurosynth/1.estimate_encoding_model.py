@@ -1,19 +1,28 @@
-# setup database for encoding model
+# estimate encoding model on full dataset
+# and test identification accuracy
+# baby step towards crossvalidation- if it doesn't work here
+# then it certainly won't work on out-of-sample data
 
 import os
-import tarfile
 import pandas,numpy
 import pickle
-import time
-import nibabel
-import glob
 
-from Bio import Entrez
-import nilearn.image
-import nilearn.input_data
 from sklearn.linear_model import ElasticNet
 
+# load data and estimate model on full dataset
 data=numpy.load('data/imgdata.npy')
 desmtx=pandas.read_csv('data/desmtx.csv')
-en=ElasticNet()
-en.fit(data,desmtx)
+if os.path.exists('data/fitted_en.pkl'):
+    en=pickle.load(open('data/fitted_en.pkl','rb'))
+    print('using cached elastic net model')
+else:
+    print('estimating elastic net model')
+    en=ElasticNet(verbose=True)
+    en.fit(data,desmtx)
+    pickle.dump(en,open('data/fitted_en.pkl','wb'))
+
+# estimate map for each study using forward model
+print('estimating maps using forward model')
+estimated_maps=numpy.zeros(data.shape)
+for i in range(data.shape[0]):
+    
