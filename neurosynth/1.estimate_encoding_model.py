@@ -11,13 +11,13 @@ from sklearn.linear_model import ElasticNet
 
 # load data and estimate model on full dataset
 data=numpy.load('data/imgdata.npy')
-desmtx=pandas.read_csv('data/desmtx.csv')
+desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
 if os.path.exists('data/fitted_en.pkl'):
     en=pickle.load(open('data/fitted_en.pkl','rb'))
     print('using cached elastic net model')
 else:
     print('estimating elastic net model')
-    en=ElasticNet(verbose=True)
+    en=ElasticNet()
     en.fit(data,desmtx)
     pickle.dump(en,open('data/fitted_en.pkl','wb'))
 
