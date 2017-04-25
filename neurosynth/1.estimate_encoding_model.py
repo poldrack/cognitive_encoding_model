@@ -24,5 +24,4 @@ else:
 # estimate map for each study using forward model
 print('estimating maps using forward model')
 estimated_maps=numpy.zeros(data.shape)
-for i in range(data.shape[0]):
-    
+#for i in range(data.shape[0]):
