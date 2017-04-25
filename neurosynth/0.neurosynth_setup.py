@@ -192,7 +192,7 @@ class Neurosynth:
             all_concept_pmids=all_concept_pmids + self.concept_pmids[k]
         all_concept_pmids=list(set(all_concept_pmids))
         all_concept_pmids.sort()
-
+        all_concepts=list(self.concept_pmids.keys())
         self.desmtx=pandas.DataFrame(data=0,index=all_concept_pmids,columns=all_concepts)
 
         for k in self.concept_pmids.keys():
