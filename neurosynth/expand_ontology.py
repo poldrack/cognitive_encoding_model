@@ -19,7 +19,7 @@ def flatten(l):
             output = output + flatten(i)
     return list(set(output))
 
-def parent_concepts(id=None,name=None,flatten_output=True,verbose=False):
+def parent_concepts(name=None,id=None,flatten_output=True,verbose=False):
     assert id or name
     # in case a list is passed, run over each element
     if name:
@@ -52,11 +52,47 @@ def expand_desmtx(d):
             d.ix[i][e]=1
     return d
 
+def list_tasks():
+    tasks = graph.cypher.execute("MATCH (t:task) RETURN t")
+    return tasks
+
+def list_contrasts():
+    contrasts = graph.cypher.execute("MATCH (c:contrast) RETURN c")
+    return contrasts
+
+def get_task_id(name):
+    match=graph.cypher.execute("MATCH (c:task) WHERE c.name='{}' RETURN c".format(name))
+    assert len(match)==1
+    return match[0]['c']['id']
+
+def get_contrasts_for_task(name):
+    id=get_task_id(name)
+    conditions=graph.cypher.execute("MATCH (t:task)-[:HASCONDITION]->(c:condition) WHERE t.name='{}' RETURN c".format(name))
+    for c in conditions:
+        print(c['t'])
+
+    match=graph.cypher.execute("MATCH (c:task)WHERE c.name='{}' RETURN c".format(name))
+    print(match)
+
+# tests
+def test_expansion():
+    desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
+    i=26110429
+    tmp=desmtx.ix[i]
+    t=tmp[tmp>0]
+    print(t)
+    for c in t.index:
+        print(parent_concepts(c))
+    dm=expand_desmtx(desmtx.copy())
+    tmpe=dm.ix[i]
+    print(tmpe[tmpe>0])
+
+def test_tasks():
+    tasks = list_tasks()
+    for task in tasks:
+        print(task['t'].properties)
+
 if __name__=='__main__':
     desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
-    dm=expand_desmtx(desmtx)
-    i=26095530
-    tmp=desmtx.ix[i]
-    tmp[tmp>0]
-    tmpe=dm.ix[i]
-    tmpe[tmpe>0]
+    dm=expand_desmtx(desmtx.copy())
+    dm.to_csv('data/desmtx_expanded.csv')
