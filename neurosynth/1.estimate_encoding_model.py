@@ -18,7 +18,7 @@ if os.path.exists('data/fitted_en.pkl'):
 else:
     print('estimating elastic net model')
     en=ElasticNet()
-    en.fit(data,desmtx)
+    en.fit(desmtx,data)
     pickle.dump(en,open('data/fitted_en.pkl','wb'))
 
 # estimate map for each study using forward model
