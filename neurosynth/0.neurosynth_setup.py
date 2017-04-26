@@ -220,9 +220,13 @@ if __name__=='__main__':
         n.save()
 
     # fit encoding model
+    n.ma_count_thresh=16
     n.build_design_matrix()
     # first, build design matrix
     print('loading dataset')
     # put into nsamples X nfeatures
-    data=n.dataset.get_image_data(list(n.desmtx.index)).T
-    numpy.save('data/imgdata.npy',data)
+    if not os.path.exists('data/imgdata.npy'):
+        print('loading dataset')
+        data=n.dataset.get_image_data(list(n.desmtx.index)).T
+        numpy.save('data/imgdata.npy',data)
+
