@@ -9,17 +9,25 @@ import pickle
 
 from sklearn.linear_model import ElasticNet
 
+expanded=False
+
 # load data and estimate model on full dataset
 data=numpy.load('data/imgdata.npy')
-desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
-if os.path.exists('data/fitted_en.pkl'):
-    en=pickle.load(open('data/fitted_en.pkl','rb'))
+if expanded:
+    desmtx=pandas.read_csv('data/desmtx_expanded.csv',index_col=0)
+    outfile='data/fitted_en_expanded.pkl'
+else:
+    desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
+    outfile='data/fitted_en.pkl'
+
+if os.path.exists(outfile):
+    en=pickle.load(open(outfile,'rb'))
     print('using cached elastic net model')
 else:
     print('estimating elastic net model')
     en=ElasticNet()
     en.fit(desmtx,data)
-    pickle.dump(en,open('data/fitted_en.pkl','wb'))
+    pickle.dump(en,open(outfile,'wb'))
 
 # estimate map for each study using forward model
 print('estimating maps using forward model')
