@@ -230,3 +230,5 @@ if __name__=='__main__':
         data=n.dataset.get_image_data(list(n.desmtx.index)).T
         numpy.save('data/imgdata.npy',data)
 
+    if not os.path.exists('all_ns_data.nii.gz'):
+        ns.base.imageutils.save_img(data.T,'all_ns_data.nii.gz',n.dataset.masker)
