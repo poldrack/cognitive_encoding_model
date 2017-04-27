@@ -29,7 +29,10 @@ else:
     en.fit(desmtx,data)
     pickle.dump(en,open(outfile,'wb'))
 
+
 # estimate map for each study using forward model
 print('estimating maps using forward model')
 estimated_maps=numpy.zeros(data.shape)
 #for i in range(data.shape[0]):
+p=en.predict(desmtx)
+numpy.save('pred_en.npy',p)
