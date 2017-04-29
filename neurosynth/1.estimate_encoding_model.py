@@ -9,7 +9,10 @@ import pickle
 
 from sklearn.linear_model import ElasticNet
 
-expanded=False
+try:
+   expanded=sys.argv[1]
+except:
+   expanded=False
 
 # load data and estimate model on full dataset
 data=numpy.load('data/imgdata.npy')
@@ -35,4 +38,8 @@ print('estimating maps using forward model')
 estimated_maps=numpy.zeros(data.shape)
 #for i in range(data.shape[0]):
 p=en.predict(desmtx)
-numpy.save('pred_en.npy',p)
+if expanded:
+    numpy.save('pred_en_expanded.npy',p)
+else:
+    numpy.save('pred_en.npy',p)
+
