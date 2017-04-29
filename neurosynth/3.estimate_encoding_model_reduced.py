@@ -26,7 +26,7 @@ if os.path.exists(outfile) and not force_new:
     print('using cached elastic net model')
 else:
     print('estimating elastic net model')
-    n_jobs=1
+    n_jobs=20
     l1_ratio=[.1, .3, .5, .7]
     n_alphas=25
     mtencv=MultiTaskElasticNetCV(n_jobs=n_jobs,l1_ratio=l1_ratio,
