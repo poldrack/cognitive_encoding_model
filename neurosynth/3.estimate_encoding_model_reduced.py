@@ -21,6 +21,9 @@ else:
     desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
     outfile='data/fitted_mtencv_reduced.pkl'
 
+dupes=desmtx.duplicated()
+desmtx=desmtx.ix[dupes==False]
+data=data.ix[dupes==False]
 if os.path.exists(outfile) and not force_new:
     en=pickle.load(open(outfile,'rb'))
     print('using cached elastic net model')
@@ -49,5 +52,7 @@ def find_match(idx,pred,actual):
     find the real image that most closely matches the index image
     ala Kay et al., 2008
     """
+    c=numpy.zeros(pred.shape[0])
     for i in range(actual.shape[0]):
-        pass
+        c[i]=numpy.correlate(pred[idx,:],actual[i])
+    return c
