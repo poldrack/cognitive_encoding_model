@@ -50,7 +50,7 @@ else:
 
     pickle.dump(ward,open('ward.pkl','wb'))
 
-    fmri_reduced = ward.transform(fmri_mean)
+    fmri_reduced = ward.transform(fmri_masked)
 
     pickle.dump(fmri_reduced,open('neurosynth_reduced.pkl','wb'))
 
