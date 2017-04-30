@@ -50,7 +50,7 @@ if os.path.exists('doc2vec_unigram_vocab.model'):
 else:
     print('learning vocabulary')
     model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
-            hs=0, min_count=2, workers=32,
+            hs=0, min_count=2, workers=22,iter=20,
             alpha=0.025, min_alpha=0.025)
     model_docs.build_vocab(doc_td)
     model_docs.save('doc2vec_unigram_vocab.model')
@@ -70,5 +70,20 @@ else:
         model_docs.save('doc2vec_unigram.model')
         with open('model.txt','a') as f:
             f.write('%f\n'%model_docs.alpha)
+
+# check the model
+# from https://github.com/RaRe-Technologies/gensim/blob/develop/docs/notebooks/doc2vec-lee.ipynb
+
+ranks = []
+second_ranks = []
+for doc_id in range(len(train_corpus)):
+    inferred_vector = model.infer_vector(train_corpus[doc_id].words)
+    sims = model.docvecs.most_similar([inferred_vector], topn=len(model.docvecs))
+    rank = [docid for docid, sim in sims].index(doc_id)
+    ranks.append(rank)
+
+    second_ranks.append(sims[1])
+
+print(collections.Counter(ranks))
 
 # compute similarity between all documents in doc2vec space
