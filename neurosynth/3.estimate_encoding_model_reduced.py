@@ -30,17 +30,19 @@ def find_match(i,p,data):
 
 
 if __name__=="__main__":
-    expanded=False
-    force_new=False
+    expanded=True
+    force_new=True
 
     # load data and estimate model on full dataset
     data=pickle.load(open('neurosynth_reduced.pkl','rb'))
     if expanded:
         desmtx=pandas.read_csv('data/desmtx_expanded.csv',index_col=0)
         outfile='data/fitted_mtencv_reduced_expanded.pkl'
+        expflag='_expanded'
     else:
         desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
         outfile='data/fitted_mtencv_reduced.pkl'
+        expflag=''
 
     # remove datasets with no signals in ROIs
 
@@ -70,15 +72,15 @@ if __name__=="__main__":
 
     # estimate map for each study using forward model
 
-    if os.path.exists('pred_mtencv.npy'):
+    if os.path.exists('pred_mtencv%s.npy'%expflag):
         print('loading predictions')
-        p=numpy.load('pred_mtencv.npy')
+        p=numpy.load('pred_mtencv%s.npy'%expflag)
     else:
         print('estimating predictions using forward model')
         p=mtencv.predict(desmtx)
-        numpy.save('pred_mtencv.npy',p)
+        numpy.save('pred_mtencv%s.npy'%expflag,p)
 
     # assess similarity of predicted to actual
     results=Parallel(n_jobs=20)(delayed(find_match)(i,p,data) for i in range(p.shape[0]))
 
-    pickle.dump(results,open('similarity_results.pkl','wb'))
+    pickle.dump(results,open('similarity_results%s.pkl'%expflag,'wb'))
