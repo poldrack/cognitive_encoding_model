@@ -18,7 +18,7 @@ journals=['J Exp Psychol Learn Mem Cogn','Cognition','Mem Cognit',
             'J Exp Psychol Gen','J Exp Psychol Appl',
             'J Exp Psychol Hum Percept Perform','Cogn Psychol',
             'Cogn Sci','Atten Percept Psychophys',
-            'Psychon Bull Rev','Q J Exp Psychol',
+            'Psychon Bull Rev',
             'Cogn Emot','J Vis','Vision Res',
             'Hear Res','Psychol Rev','Psychol Bull',
             'Psychol Sci','Pers Soc Psychol Bull',
@@ -27,6 +27,7 @@ journals=['J Exp Psychol Learn Mem Cogn','Cognition','Mem Cognit',
             # rejected:
             # 'J Acoust Soc Am' (too many)
             # 'Judgm Decis Mak' (too few)
+            # 'Q J Exp Psychol' - no abstracts present
 
 retmax=2000000
 delay=0.5 # delay for pubmed api
@@ -58,14 +59,15 @@ else:
             handle = Entrez.efetch(db="pubmed", id=",".join(['%d'%i for i in pmids[j]]), retmode="xml")
             time.sleep(delay)
             records=Entrez.read(handle)
-            abstracts[j]=[]
+            abstracts[j]={}
             for i in records['PubmedArticle']:
+                pmid=int(i['MedlineCitation']['PMID'])
                 if 'Abstract' in i['MedlineCitation']['Article']:
-                    abstracts[j].append(i['MedlineCitation']['Article']['Abstract'])
+                    abstracts[j][pmid]=i['MedlineCitation']['Article']['Abstract']['AbstractText']
                 else:
                     pass #print('no abstract for',j,str(i['MedlineCitation']['PMID']))
 
-            print('found %d abstracts from %d keys'%(len(abstracts[j]),len(pmids[j])))
+            print(j,': found %d abstracts from %d keys'%(len(abstracts[j]),len(pmids[j])))
         except:
             print('problem with',j)
     pickle.dump(abstracts,open('abstracts.pkl','wb'))

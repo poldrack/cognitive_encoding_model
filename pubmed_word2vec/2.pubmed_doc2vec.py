@@ -5,6 +5,7 @@ identified from psychology journals using 1.get_articles.py
 
 import pickle,os
 import string,re
+import gensim.models
 
 import random
 import pandas
@@ -15,30 +16,63 @@ import nltk
 
 from text_cleanup import text_cleanup
 
+use_bigrams=True
+use_cogat_phrases=True # also transform 3+ word cogat Phrases
 
+if use_cogat_phrases:
+    desmtx_df=pandas.read_csv('../neurosynth/data/desmtx.csv',index_col=0)
+    cogat_concepts=[i for i in list(desmtx_df.columns) if len(i.split(' '))>1]
 
 # preprocess and clean up text
 if os.path.exists('doc_td.pkl'):
     print('using saved text')
     doc_td=pickle.load(open('doc_td.pkl','rb'))
 else:
-    print('cleaning up text')
-    abstracts_raw=pickle.load(open('abstracts.pkl','rb'))
+    # get list of all abstracts for training of bigram detector
+    if os.path.exists('cleaned_abstracts.pkl'):
+        print('using saved clean abstracts')
+        cleaned_abstracts,all_cleaned_abstracts=pickle.load(open('cleaned_abstracts.pkl','rb'))
+    else:
+        print('cleaning up text')
+        abstracts_raw=pickle.load(open('abstracts.pkl','rb'))
+        cleaned_abstracts={}
+        all_cleaned_abstracts=[]
+        wordnet_lemmatizer=WordNetLemmatizer()
+        for j in abstracts_raw.keys():
+            cleaned_abstracts[j]={}
+            for pmid in abstracts_raw[j].keys():
+                abstract=text_cleanup(abstracts_raw[j][pmid][0])
+                docsplit=[wordnet_lemmatizer.lemmatize(i) for i in nltk.tokenize.word_tokenize(abstract)]
+                cleaned_abstracts[j][pmid]=' '.join(docsplit)
+                all_cleaned_abstracts.append(docsplit)
+        pickle.dump((cleaned_abstracts,all_cleaned_abstracts),open('cleaned_abstracts.pkl','wb'))
+
+    if use_bigrams:
+        if os.path.exists('bigram_transformer.pkl'):
+            bigram_transformer=gensim.models.Phrases().load('bigram_transformer.pkl')
+        else:
+            print('training bigram detector')
+            bigram_transformer = gensim.models.Phrases(all_cleaned_abstracts,min_count=50)
+            if use_cogat_phrases:
+                for c in cogat_concepts:
+                    # throw out disambiguation concepts
+                    if '(' in c:
+                        continue
+                    if not c in bigram_transformer.vocab:
+                        bigram_transformer.add_vocab(c)
+            bigram_transformer.save('bigram_transformer.pkl')
+
     doc_td=[]
-    wordnet_lemmatizer=WordNetLemmatizer()
-    stopwords=nltk.corpus.stopwords.words('english')
-    for j in abstracts_raw.keys():
+    for j in cleaned_abstracts.keys():
         print(j)
-        for pmid in abstracts_raw[j].keys():
-            abstract=text_cleanup(abstracts_raw[j][pmid][0])
-            # strip stopwords
-            #abstract=' '.join([i for i in abstract.split(' ') if not i in stopwords])
-            #abstract=abstracts[a]
-            docsplit=[wordnet_lemmatizer.lemmatize(i) for i in nltk.tokenize.word_tokenize(abstract)]
-            doc_td.append(TaggedDocument(docsplit,[pmid]))
+        for pmid in cleaned_abstracts[j].keys():
+            docsplit=cleaned_abstracts[j][pmid].split(' ')
+            if use_bigrams:
+                doc_td.append(TaggedDocument(bigram_transformer[docsplit],[pmid]))
+            else:
+                doc_td.append(TaggedDocument(docsplit,[pmid]))
 
     pickle.dump(doc_td,open('doc_td.pkl','wb'))
-
 
 # fit model
 
@@ -51,7 +85,7 @@ else:
     print('learning vocabulary')
     model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
             hs=0, min_count=2, workers=22,iter=20,
-            alpha=0.025, min_alpha=0.025)
+            alpha=0.025, min_alpha=0.025,dbow_words=1)
     model_docs.build_vocab(doc_td)
     model_docs.save('doc2vec_unigram_vocab.model')
 
