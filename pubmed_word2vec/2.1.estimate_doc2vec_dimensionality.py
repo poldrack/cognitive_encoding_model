@@ -3,12 +3,12 @@ use crossvalidation to estimate dimensionality
 of word2vec model
 """
 
-import pickle,os
+import pickle,os,sys
 import string,re
 import gensim.models
 
 import random
-import pandas
+import pandas,numpy
 from gensim.models.doc2vec import Doc2Vec,TaggedDocument
 from gensim.models.doc2vec import TaggedDocument
 from sklearn.model_selection import KFold
@@ -32,9 +32,14 @@ else:
     model_docs.build_vocab(doc_td)
     model_docs.save('doc2vec_trigram_vocab.model')
 
-ndims=100
+try:
+    ndims=int(sys.argv[1])
+except:
+    ndims=100
+    print('using default ndims=',ndims)
 
 model_docs.vector_size=ndims
+scores=numpy.zeros(len(doc_td))
 
 for train, test in kf.split(docs):
     train_docs=[doc_td[i] for i in train]
@@ -47,5 +52,6 @@ for train, test in kf.split(docs):
                             epochs=model_docs.iter)
         model_docs.alpha-=.002
         model_docs.min_alpha=model_docs.alpha
-    asdf
-    
+    td=[test_docs[i].words for i in range(len(test_docs))]
+    scores[test]=model_docs.score(td)
+numpy.save('scores_%d_dims.npy'%ndims,scores)
