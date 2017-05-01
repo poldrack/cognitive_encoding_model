@@ -56,7 +56,7 @@ else:
                 if ')' in c:
                     continue
                 else:
-                    all_cleaned_abstracts.append(c)
+                    all_cleaned_abstracts.append(c.split(' '))
 
 
     if os.path.exists('trigram_transformer.pkl'):
