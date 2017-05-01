@@ -19,6 +19,20 @@ doc_td=pickle.load(open('doc_td.pkl','rb'))
 docs=list(range(len(docs_td)))
 
 kf = KFold(n_splits=2)
+ndims=200
+
+if os.path.exists('doc2vec_trigram_vocab.model'%ndims):
+    print("using saved vocabulary")
+    model_docs=Doc2Vec.load('doc2vec_trigram_vocab.model'%ndims)
+else:
+    print('learning vocabulary')
+    model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
+            hs=0, min_count=50, workers=22,iter=20,
+            alpha=0.025, min_alpha=0.025,dbow_words=1)
+    model_docs.build_vocab(doc_td)
+    model_docs.save('doc2vec_trigram_vocab.model'%ndims)
+
+ndims=100
 
 for train, test in kf.split(docs):
         print('learning vocabulary')
