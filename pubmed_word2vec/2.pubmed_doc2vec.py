@@ -69,7 +69,7 @@ else:
         trigrams=gensim.models.Phrases(bigram_transformer[all_cleaned_abstracts],min_count=50)
         trigram_transformer=gensim.models.phrases.Phraser(trigrams)
         trigram_transformer.save('trigram_transformer.pkl')
-    asdf
+
 
     doc_td=[]
     for j in cleaned_abstracts.keys():
@@ -120,7 +120,7 @@ def get_ranks(doc_id,model_docs,doc_td):
     sims = model_docs.docvecs.most_similar([inferred_vector]) #, topn=len(model_docs.docvecs))
     return [doc_td[doc_id].tags[0],int(sims[0][0]==doc_td[doc_id].tags[0]),sims[0][1]]
 
-results=Parallel(n_jobs=20)(delayed(get_ranks)(i,model_docs,doc_td) for i in range(len(doc_td)))
+results=Parallel(n_jobs=10)(delayed(get_ranks)(i,model_docs,doc_td) for i in range(len(doc_td)))
 pickle.dump(results,open('model_check_results.pkl','wb'))
 
 # compute similarity between all documents in doc2vec space
