@@ -110,7 +110,7 @@ else:
 
 # check the model
 # from https://github.com/RaRe-Technologies/gensim/blob/develop/docs/notebooks/doc2vec-lee.ipynb
-
+print('checking model performance')
 ranks = []
 def get_ranks(doc_id,model_docs,doc_td):
     inferred_vector = model_docs.infer_vector(doc_td[doc_id].words)
@@ -118,5 +118,6 @@ def get_ranks(doc_id,model_docs,doc_td):
     return [doc_td[doc_id].tags[0],int(sims[0][0]==doc_td[doc_id].tags[0]),sims[0][1]]
 
 results=Parallel(n_jobs=20)(delayed(get_ranks)(i,model_docs,doc_td) for i in range(len(doc_td)))
+pickle.dump(results,open('model_check_results.pkl','wb'))
 
 # compute similarity between all documents in doc2vec space
