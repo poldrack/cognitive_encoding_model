@@ -67,7 +67,8 @@ else:
         bigrams = gensim.models.Phrases(all_cleaned_abstracts,min_count=50)
         bigram_transformer=gensim.models.phrases.Phraser(bigrams)
         print('training trigram detector')
-        trigrams=gensim.models.Phrases(bigram_transformer[all_cleaned_abstracts],min_count=50)
+        trigrams=gensim.models.Phrases(bigram_transformer[all_cleaned_abstracts],
+                            min_count=50,threshold=2)
         trigram_transformer=gensim.models.phrases.Phraser(trigrams)
         trigram_transformer.save('trigram_transformer.pkl')
 
