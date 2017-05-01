@@ -56,6 +56,8 @@ else:
                 all_cleaned_abstracts.append(docsplit)
         pickle.dump((cleaned_abstracts,all_cleaned_abstracts),open('cleaned_abstracts.pkl','wb'))
 
+    # note: these get added to all_cleaned_abstracts for generating of the
+    # bigram/trigram transformers, but not to the documents for modeling
     if use_cogat_phrases:
         desmtx_df=pandas.read_csv('../neurosynth/data/desmtx.csv',index_col=0)
         cogat_concepts=[i for i in list(desmtx_df.columns) if len(i.split(' '))>1]
