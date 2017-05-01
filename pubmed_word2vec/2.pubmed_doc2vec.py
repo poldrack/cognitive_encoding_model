@@ -60,6 +60,7 @@ else:
 
 
     if os.path.exists('trigram_transformer.pkl'):
+        print('using trained trigram transformer')
         trigram_transformer=gensim.models.Phraser().load('trigram_transformer.pkl')
     else:
         print('training bigram detector')
