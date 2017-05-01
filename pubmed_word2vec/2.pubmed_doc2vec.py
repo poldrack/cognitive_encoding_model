@@ -21,6 +21,16 @@ from text_cleanup import text_cleanup
 
 use_cogat_phrases=True # also transform 3+ word cogat Phrases
 
+journals=['J Exp Psychol Learn Mem Cogn','Cognition','Mem Cognit',
+            'J Exp Psychol Gen','J Exp Psychol Appl',
+            'J Exp Psychol Hum Percept Perform','Cogn Psychol',
+            'Cogn Sci','Atten Percept Psychophys',
+            'Psychon Bull Rev',
+            'Cogn Emot','J Vis',
+            'Psychol Rev','Psychol Bull',
+            'Psychol Sci','Pers Soc Psychol Bull',
+            'J Pers Soc Psychol','J Res Pers',
+            'J Exp Soc Psychol','Emotion','Motiv Emot']
 
 # preprocess and clean up text
 if os.path.exists('doc_td.pkl'):
@@ -37,7 +47,7 @@ else:
         cleaned_abstracts={}
         all_cleaned_abstracts=[]
         wordnet_lemmatizer=WordNetLemmatizer()
-        for j in abstracts_raw.keys():
+        for j in journals:
             cleaned_abstracts[j]={}
             for pmid in abstracts_raw[j].keys():
                 abstract=text_cleanup(abstracts_raw[j][pmid][0])
@@ -88,21 +98,23 @@ else:
 
 ndims=50
 
+if os.path.exists('model.txt'):
+    os.remove('model.txt')
 
-if os.path.exists('doc2vec_unigram.model'):
+if os.path.exists('doc2vec_trigram.model'):
     print('using saved model')
-    model_docs=Doc2Vec.load('doc2vec_unigram.model')
+    model_docs=Doc2Vec.load('doc2vec_trigram.model')
 else:
-    if os.path.exists('doc2vec_unigram_vocab.model'):
+    if os.path.exists('doc2vec_trigram_vocab.model'):
         print("using saved vocabulary")
-        model_docs=Doc2Vec.load('doc2vec_unigram_vocab.model')
+        model_docs=Doc2Vec.load('doc2vec_trigram_vocab.model')
     else:
         print('learning vocabulary')
         model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
                 hs=0, min_count=2, workers=22,iter=20,
                 alpha=0.025, min_alpha=0.025,dbow_words=1)
         model_docs.build_vocab(doc_td)
-        model_docs.save('doc2vec_unigram_vocab.model')
+        model_docs.save('doc2vec_trigram_vocab.model')
     print('learning model')
     for epoch in range(10):
         random.shuffle(doc_td)
@@ -111,7 +123,7 @@ else:
                             epochs=model_docs.iter)
         model_docs.alpha-=.002
         model_docs.min_alpha=model_docs.alpha
-        model_docs.save('doc2vec_unigram.model')
+        model_docs.save('doc2vec_trigram.model')
         with open('model.txt','a') as f:
             f.write('%f\n'%model_docs.alpha)
 
