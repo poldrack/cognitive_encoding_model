@@ -6,6 +6,7 @@ identified from psychology journals using 1.get_articles.py
 import pickle,os
 import string,re
 import gensim.models
+import collections
 
 import random
 import pandas
@@ -13,6 +14,8 @@ from gensim.models.doc2vec import Doc2Vec,TaggedDocument
 from gensim.models.doc2vec import TaggedDocument
 from nltk.stem import WordNetLemmatizer
 import nltk
+
+from joblib import Parallel, delayed
 
 from text_cleanup import text_cleanup
 
@@ -78,21 +81,21 @@ else:
 
 ndims=50
 
-if os.path.exists('doc2vec_unigram_vocab.model'):
-    print("using saved vocabulary")
-    model_docs=Doc2Vec.load('doc2vec_unigram_vocab.model')
-else:
-    print('learning vocabulary')
-    model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
-            hs=0, min_count=2, workers=22,iter=20,
-            alpha=0.025, min_alpha=0.025,dbow_words=1)
-    model_docs.build_vocab(doc_td)
-    model_docs.save('doc2vec_unigram_vocab.model')
 
 if os.path.exists('doc2vec_unigram.model'):
     print('using saved model')
     model_docs=Doc2Vec.load('doc2vec_unigram.model')
 else:
+    if os.path.exists('doc2vec_unigram_vocab.model'):
+        print("using saved vocabulary")
+        model_docs=Doc2Vec.load('doc2vec_unigram_vocab.model')
+    else:
+        print('learning vocabulary')
+        model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
+                hs=0, min_count=2, workers=22,iter=20,
+                alpha=0.025, min_alpha=0.025,dbow_words=1)
+        model_docs.build_vocab(doc_td)
+        model_docs.save('doc2vec_unigram_vocab.model')
     print('learning model')
     for epoch in range(10):
         random.shuffle(doc_td)
@@ -109,15 +112,11 @@ else:
 # from https://github.com/RaRe-Technologies/gensim/blob/develop/docs/notebooks/doc2vec-lee.ipynb
 
 ranks = []
-second_ranks = []
-for doc_id in range(len(train_corpus)):
-    inferred_vector = model.infer_vector(train_corpus[doc_id].words)
-    sims = model.docvecs.most_similar([inferred_vector], topn=len(model.docvecs))
-    rank = [docid for docid, sim in sims].index(doc_id)
-    ranks.append(rank)
+def get_ranks(doc_id,model_docs,doc_td):
+    inferred_vector = model_docs.infer_vector(doc_td[doc_id].words)
+    sims = model_docs.docvecs.most_similar([inferred_vector]) #, topn=len(model_docs.docvecs))
+    return [doc_td[doc_id].tags[0],int(sims[0][0]==doc_td[doc_id].tags[0]),sims[0][1]]
 
-    second_ranks.append(sims[1])
-
-print(collections.Counter(ranks))
+results=Parallel(n_jobs=20)(delayed(get_ranks)(i,model_docs,doc_td) for i in range(len(doc_td)))
 
 # compute similarity between all documents in doc2vec space
