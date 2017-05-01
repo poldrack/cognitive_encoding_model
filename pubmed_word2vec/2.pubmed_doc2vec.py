@@ -61,11 +61,13 @@ else:
 
     if os.path.exists('trigram_transformer.pkl'):
         print('using trained trigram transformer')
+        bigram_transformer=gensim.models.phrases.Phraser.load('bigram_transformer.pkl')
         trigram_transformer=gensim.models.phrases.Phraser.load('trigram_transformer.pkl')
     else:
         print('training bigram detector')
         bigrams = gensim.models.Phrases(all_cleaned_abstracts,min_count=50)
         bigram_transformer=gensim.models.phrases.Phraser(bigrams)
+        bigram_transformer.save('bigram_transformer.pkl')
         print('training trigram detector')
         trigrams=gensim.models.Phrases(bigram_transformer[all_cleaned_abstracts],
                             min_count=50,threshold=2)
@@ -78,7 +80,7 @@ else:
         print(j)
         for pmid in cleaned_abstracts[j].keys():
             docsplit=cleaned_abstracts[j][pmid].split(' ')
-            doc_td.append(TaggedDocument(trigram_transformer[docsplit],[pmid]))
+            doc_td.append(TaggedDocument(trigram_transformer[bigram_transformer[docsplit]],[pmid]))
 
     pickle.dump(doc_td,open('doc_td.pkl','wb'))
 
