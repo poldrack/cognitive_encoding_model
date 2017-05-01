@@ -103,20 +103,20 @@ ndims=50
 if os.path.exists('model.txt'):
     os.remove('model.txt')
 
-if os.path.exists('doc2vec_trigram.model'):
+if os.path.exists('doc2vec_trigram_%ddims.model'%ndims):
     print('using saved model')
-    model_docs=Doc2Vec.load('doc2vec_trigram.model')
+    model_docs=Doc2Vec.load('doc2vec_trigram_%ddims.model'%ndims)
 else:
-    if os.path.exists('doc2vec_trigram_vocab.model'):
+    if os.path.exists('doc2vec_trigram_%ddims_vocab.model'%ndims):
         print("using saved vocabulary")
-        model_docs=Doc2Vec.load('doc2vec_trigram_vocab.model')
+        model_docs=Doc2Vec.load('doc2vec_trigram_%ddims_vocab.model'%ndims)
     else:
         print('learning vocabulary')
         model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
                 hs=0, min_count=50, workers=22,iter=20,
                 alpha=0.025, min_alpha=0.025,dbow_words=1)
         model_docs.build_vocab(doc_td)
-        model_docs.save('doc2vec_trigram_vocab.model')
+        model_docs.save('doc2vec_trigram_%ddims.model'%ndims)
     print('learning model')
     for epoch in range(10):
         random.shuffle(doc_td)
@@ -125,7 +125,7 @@ else:
                             epochs=model_docs.iter)
         model_docs.alpha-=.002
         model_docs.min_alpha=model_docs.alpha
-        model_docs.save('doc2vec_trigram.model')
+        model_docs.save('doc2vec_trigram_%ddims.model'%ndims)
         with open('model.txt','a') as f:
             f.write('%f\n'%model_docs.alpha)
 
