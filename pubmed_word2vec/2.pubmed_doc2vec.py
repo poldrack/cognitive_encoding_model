@@ -19,12 +19,8 @@ from joblib import Parallel, delayed
 
 from text_cleanup import text_cleanup
 
-use_bigrams=True
 use_cogat_phrases=True # also transform 3+ word cogat Phrases
 
-if use_cogat_phrases:
-    desmtx_df=pandas.read_csv('../neurosynth/data/desmtx.csv',index_col=0)
-    cogat_concepts=[i for i in list(desmtx_df.columns) if len(i.split(' '))>1]
 
 # preprocess and clean up text
 if os.path.exists('doc_td.pkl'):
@@ -50,30 +46,37 @@ else:
                 all_cleaned_abstracts.append(docsplit)
         pickle.dump((cleaned_abstracts,all_cleaned_abstracts),open('cleaned_abstracts.pkl','wb'))
 
-    if use_bigrams:
-        if os.path.exists('bigram_transformer.pkl'):
-            bigram_transformer=gensim.models.Phrases().load('bigram_transformer.pkl')
-        else:
-            print('training bigram detector')
-            bigram_transformer = gensim.models.Phrases(all_cleaned_abstracts,min_count=50)
-            if use_cogat_phrases:
-                for c in cogat_concepts:
-                    # throw out disambiguation concepts
-                    if '(' in c:
-                        continue
-                    if not c in bigram_transformer.vocab:
-                        bigram_transformer.add_vocab(c)
-            bigram_transformer.save('bigram_transformer.pkl')
+    if use_cogat_phrases:
+        desmtx_df=pandas.read_csv('../neurosynth/data/desmtx.csv',index_col=0)
+        cogat_concepts=[i for i in list(desmtx_df.columns) if len(i.split(' '))>1]
+        # kludge - create enough documents with each concept for it to end up
+        # in the n-gram list
+        for i in range(100):
+            for c in cogat_concepts:
+                if ')' in c:
+                    continue
+                else:
+                    all_cleaned_abstracts.append(c)
+
+
+    if os.path.exists('trigram_transformer.pkl'):
+        trigram_transformer=gensim.models.Phraser().load('trigram_transformer.pkl')
+    else:
+        print('training bigram detector')
+        bigrams = gensim.models.Phrases(all_cleaned_abstracts,min_count=50)
+        bigram_transformer=gensim.models.phrases.Phraser(bigrams)
+        print('training trigram detector')
+        trigrams=gensim.models.Phrases(bigram_transformer[all_cleaned_abstracts],min_count=50)
+        trigram_transformer=gensim.models.phrases.Phraser(trigrams)
+        trigram_transformer.save('trigram_transformer.pkl')
+    asdf
 
     doc_td=[]
     for j in cleaned_abstracts.keys():
         print(j)
         for pmid in cleaned_abstracts[j].keys():
             docsplit=cleaned_abstracts[j][pmid].split(' ')
-            if use_bigrams:
-                doc_td.append(TaggedDocument(bigram_transformer[docsplit],[pmid]))
-            else:
-                doc_td.append(TaggedDocument(docsplit,[pmid]))
+            doc_td.append(TaggedDocument(trigram_transformer[docsplit],[pmid]))
 
     pickle.dump(doc_td,open('doc_td.pkl','wb'))
 
