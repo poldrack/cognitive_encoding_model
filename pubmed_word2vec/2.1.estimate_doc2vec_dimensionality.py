@@ -21,27 +21,22 @@ docs=list(range(len(doc_td)))
 kf = KFold(n_splits=2)
 ndims=200
 
-if os.path.exists('doc2vec_trigram_vocab.model'%ndims):
+if os.path.exists('doc2vec_trigram_vocab.model'):
     print("using saved vocabulary")
-    model_docs=Doc2Vec.load('doc2vec_trigram_vocab.model'%ndims)
+    model_docs=Doc2Vec.load('doc2vec_trigram_vocab.model')
 else:
     print('learning vocabulary')
     model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
             hs=0, min_count=50, workers=22,iter=20,
             alpha=0.025, min_alpha=0.025,dbow_words=1)
     model_docs.build_vocab(doc_td)
-    model_docs.save('doc2vec_trigram_vocab.model'%ndims)
+    model_docs.save('doc2vec_trigram_vocab.model')
 
 ndims=100
 
 for train, test in kf.split(docs):
-        print('learning vocabulary')
         train_docs=[doc_td[i] for i in train]
         test_docs=[doc_td[i] for i in test]
-        model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
-                hs=0, min_count=50, workers=22,iter=20,
-                alpha=0.025, min_alpha=0.025,dbow_words=1)
-        model_docs.build_vocab(train_docs)
         print('learning model')
         for epoch in range(10):
             random.shuffle(train_docs)
