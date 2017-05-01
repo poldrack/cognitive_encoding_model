@@ -16,14 +16,14 @@ from joblib import Parallel, delayed
 
 print('using saved text')
 doc_td=pickle.load(open('doc_td.pkl','rb'))
-docs=list(range(len(docs_td)))
+docs=list(range(len(doc_td)))
 
 kf = KFold(n_splits=2)
-
+ndims=50
 for train, test in kf.split(docs):
         print('learning vocabulary')
-        train_docs=doc_td[train]
-        test_docs=doc_td[test]
+        train_docs=[doc_td[i] for i in train]
+        test_docs=[doc_td[i] for i in test]
         model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
                 hs=0, min_count=50, workers=22,iter=20,
                 alpha=0.025, min_alpha=0.025,dbow_words=1)
