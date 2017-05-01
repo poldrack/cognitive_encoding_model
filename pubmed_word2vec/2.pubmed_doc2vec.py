@@ -113,7 +113,7 @@ else:
     else:
         print('learning vocabulary')
         model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
-                hs=0, min_count=2, workers=22,iter=20,
+                hs=0, min_count=50, workers=22,iter=20,
                 alpha=0.025, min_alpha=0.025,dbow_words=1)
         model_docs.build_vocab(doc_td)
         model_docs.save('doc2vec_trigram_vocab.model')
