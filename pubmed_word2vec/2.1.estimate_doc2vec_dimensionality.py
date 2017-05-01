@@ -18,7 +18,7 @@ print('using saved text')
 doc_td=pickle.load(open('doc_td.pkl','rb'))
 docs=list(range(len(doc_td)))
 
-kf = KFold(n_splits=2)
+kf = KFold(n_splits=4)
 
 try:
     ndims=int(sys.argv[1])
@@ -26,11 +26,17 @@ except:
     ndims=100
     print('using default ndims=',ndims)
 
-print('learning vocabulary')
-model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=0,
-        hs=1, min_count=50, workers=22,iter=20,
-        alpha=0.025, min_alpha=0.025,dbow_words=1)
-model_docs.build_vocab(doc_td)
+
+if os.path.exists('doc2vec_trigram_%ddims_vocab.model'%ndims):
+    print("using saved vocabulary")
+    model_docs=Doc2Vec.load('doc2vec_trigram_%ddims_vocab.model'%ndims)
+else:
+    print('learning vocabulary')
+    model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=0,
+            hs=1, min_count=50, workers=22,iter=20,
+            alpha=0.025, min_alpha=0.025,dbow_words=1)
+    model_docs.build_vocab(doc_td)
+    model_docs.save('doc2vec_trigram_%ddims_vocab.model'%ndims)
 
 scores=numpy.zeros(len(doc_td))
 
@@ -38,6 +44,8 @@ for train, test in kf.split(docs):
     train_docs=[doc_td[i] for i in train]
     test_docs=[doc_td[i] for i in test]
     print('learning model')
+    model_docs.alpha=0.025
+    model_docs.min_alpha=model_docs.alpha
     for epoch in range(10):
         random.shuffle(train_docs)
         print(ndims,'training on',model_docs.alpha)
