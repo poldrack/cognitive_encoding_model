@@ -26,23 +26,26 @@ if os.path.exists('doc2vec_trigram_vocab.model'):
     model_docs=Doc2Vec.load('doc2vec_trigram_vocab.model')
 else:
     print('learning vocabulary')
-    model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
-            hs=0, min_count=50, workers=22,iter=20,
+    model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=0,
+            hs=1, min_count=50, workers=22,iter=20,
             alpha=0.025, min_alpha=0.025,dbow_words=1)
     model_docs.build_vocab(doc_td)
     model_docs.save('doc2vec_trigram_vocab.model')
 
 ndims=100
 
+model_docs.vector_size=ndims
+
 for train, test in kf.split(docs):
-        train_docs=[doc_td[i] for i in train]
-        test_docs=[doc_td[i] for i in test]
-        print('learning model')
-        for epoch in range(10):
-            random.shuffle(train_docs)
-            print('training on',model_docs.alpha)
-            model_docs.train(doc_td,total_examples=model_docs.corpus_count,
-                                epochs=model_docs.iter)
-            model_docs.alpha-=.002
-            model_docs.min_alpha=model_docs.alpha
-        asdf
+    train_docs=[doc_td[i] for i in train]
+    test_docs=[doc_td[i] for i in test]
+    print('learning model')
+    for epoch in range(10):
+        random.shuffle(train_docs)
+        print('training on',model_docs.alpha)
+        model_docs.train(train_docs,total_examples=len(train_docs),
+                            epochs=model_docs.iter)
+        model_docs.alpha-=.002
+        model_docs.min_alpha=model_docs.alpha
+    asdf
+    
