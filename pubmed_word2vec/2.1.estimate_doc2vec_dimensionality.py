@@ -23,20 +23,20 @@ kf = KFold(n_splits=4)
 try:
     ndims=int(sys.argv[1])
 except:
-    ndims=100
+    ndims=20
     print('using default ndims=',ndims)
 
 
-if os.path.exists('doc2vec_trigram_%ddims_vocab.model'%ndims):
+if os.path.exists('models/doc2vec_trigram_%ddims_vocab.model'%ndims):
     print("using saved vocabulary")
-    model_docs=Doc2Vec.load('doc2vec_trigram_%ddims_vocab.model'%ndims)
+    model_docs=Doc2Vec.load('models/doc2vec_trigram_%ddims_vocab.model'%ndims)
 else:
     print('learning vocabulary')
     model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=0,
             hs=1, min_count=50, workers=22,iter=20,
             alpha=0.025, min_alpha=0.025,dbow_words=1)
     model_docs.build_vocab(doc_td)
-    model_docs.save('doc2vec_trigram_%ddims_vocab.model'%ndims)
+    model_docs.save('models/doc2vec_trigram_%ddims_vocab.model'%ndims)
 
 scores=numpy.zeros(len(doc_td))
 
