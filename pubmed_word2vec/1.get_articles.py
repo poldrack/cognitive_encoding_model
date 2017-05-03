@@ -14,21 +14,9 @@ from Bio import Entrez
 
 Entrez.email='poldrack@stanford.edu'
 
-journals=['J Exp Psychol Learn Mem Cogn','Cognition','Mem Cognit',
-            'J Exp Psychol Gen','J Exp Psychol Appl',
-            'J Exp Psychol Hum Percept Perform','Cogn Psychol',
-            'Cogn Sci','Atten Percept Psychophys',
-            'Psychon Bull Rev',
-            'Cogn Emot','J Vis',
-            'Psychol Rev','Psychol Bull',
-            'Psychol Sci','Pers Soc Psychol Bull',
-            'J Pers Soc Psychol','J Res Pers',
-            'J Exp Soc Psychol','Emotion','Motiv Emot']
-            # rejected:
-            # 'J Acoust Soc Am' (too many)
-            # 'Judgm Decis Mak' (too few)
-            # 'Q J Exp Psychol' - no abstracts present
-            # 'Hear Res','Vision Res', - too much nonhuman
+with open('journals.txt') as f:
+    journals=[i.strip() for i in f.readlines()]
+
 
 retmax=2000000
 delay=0.5 # delay for pubmed api
