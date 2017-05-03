@@ -59,16 +59,23 @@ else:
     # note: these get added to all_cleaned_abstracts for generating of the
     # bigram/trigram transformers, but not to the documents for modeling
     if use_cogat_phrases:
+        wordnet_lemmatizer=WordNetLemmatizer()
         desmtx_df=pandas.read_csv('../neurosynth/data/desmtx.csv',index_col=0)
-        cogat_concepts=[i for i in list(desmtx_df.columns) if len(i.split(' '))>1]
+        cogat_concepts=[i for i in list(desmtx_df.columns)]
         # kludge - create enough documents with each concept for it to end up
         # in the n-gram list
-        for i in range(100):
-            for c in cogat_concepts:
-                if ')' in c:
-                    continue
-                else:
-                    all_cleaned_abstracts.append(c.split(' '))
+        cleaned_cogat_concepts={}
+        for c in cogat_concepts:
+            if ')' in c:
+                continue
+            else:
+                c_cleaned=text_cleanup(c)
+                c_lemm=[wordnet_lemmatizer.lemmatize(i) for i in nltk.tokenize.word_tokenize(c_cleaned)]
+                cleaned_cogat_concepts[c]=c_lemm
+                for i in range(100):
+                    all_cleaned_abstracts.append(c_lemm)
+        pickle.dump(cleaned_cogat_concepts,open('cleaned_cogat_concepts.pkl','wb'))
+    asdf
 
 
     if os.path.exists('trigram_transformer.pkl'):
@@ -103,20 +110,20 @@ ndims=50
 if os.path.exists('model.txt'):
     os.remove('model.txt')
 
-if os.path.exists('doc2vec_trigram_%ddims.model'%ndims):
+if os.path.exists('models/doc2vec_trigram_%ddims.model'%ndims):
     print('using saved model')
-    model_docs=Doc2Vec.load('doc2vec_trigram_%ddims.model'%ndims)
+    model_docs=Doc2Vec.load('models/doc2vec_trigram_%ddims.model'%ndims)
 else:
-    if os.path.exists('doc2vec_trigram_%ddims_vocab.model'%ndims):
+    if os.path.exists('models/doc2vec_trigram_%ddims_vocab.model'%ndims):
         print("using saved vocabulary")
-        model_docs=Doc2Vec.load('doc2vec_trigram_%ddims_vocab.model'%ndims)
+        model_docs=Doc2Vec.load('models/doc2vec_trigram_%ddims_vocab.model'%ndims)
     else:
         print('learning vocabulary')
         model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
                 hs=0, min_count=50, workers=22,iter=20,
                 alpha=0.025, min_alpha=0.025,dbow_words=1)
         model_docs.build_vocab(doc_td)
-        model_docs.save('doc2vec_trigram_%ddims.model'%ndims)
+        model_docs.save('models/doc2vec_trigram_%ddims_vocab.model'%ndims)
     print('learning model')
     for epoch in range(10):
         random.shuffle(doc_td)
@@ -125,20 +132,21 @@ else:
                             epochs=model_docs.iter)
         model_docs.alpha-=.002
         model_docs.min_alpha=model_docs.alpha
-        model_docs.save('doc2vec_trigram_%ddims.model'%ndims)
+        model_docs.save('models/doc2vec_trigram_%ddims.model'%ndims)
         with open('model.txt','a') as f:
             f.write('%f\n'%model_docs.alpha)
 
 # check the model
 # from https://github.com/RaRe-Technologies/gensim/blob/develop/docs/notebooks/doc2vec-lee.ipynb
-print('checking model performance')
+n_to_check=1000
+print('checking model performance for %d random selected abstracts'%n_to_check)
 ranks = []
+
 def get_ranks(doc_id,model_docs,doc_td):
     inferred_vector = model_docs.infer_vector(doc_td[doc_id].words)
     sims = model_docs.docvecs.most_similar([inferred_vector]) #, topn=len(model_docs.docvecs))
     return [doc_td[doc_id].tags[0],int(sims[0][0]==doc_td[doc_id].tags[0]),sims[0][1]]
 
-results=Parallel(n_jobs=10)(delayed(get_ranks)(i,model_docs,doc_td) for i in range(len(doc_td)))
+random.shuffle(doc_td)
+results=Parallel(n_jobs=10)(delayed(get_ranks)(i,model_docs,doc_td) for i in range(n_to_check))
 pickle.dump(results,open('model_check_results.pkl','wb'))
-
-# compute similarity between all documents in doc2vec space
