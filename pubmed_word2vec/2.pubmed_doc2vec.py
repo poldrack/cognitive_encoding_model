@@ -19,6 +19,9 @@ from joblib import Parallel, delayed
 
 from text_cleanup import text_cleanup
 
+if not os.path.exists('models'):
+    os.mkdir('models')
+    
 use_cogat_phrases=True # also transform 3+ word cogat Phrases
 
 journals=['J Exp Psychol Learn Mem Cogn','Cognition','Mem Cognit',
