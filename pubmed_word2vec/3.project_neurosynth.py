@@ -93,19 +93,19 @@ def clean_abstract(a):
     docsplit=[wordnet_lemmatizer.lemmatize(i) for i in nltk.tokenize.word_tokenize(abstract) if len(i)>1]
     return docsplit,abstract
 
-if os.path.exists('abstracts_cleaned.pkl'):
-    abstracts_cleaned=pickle.load(open('abstracts_cleaned.pkl','rb'))
+if os.path.exists('ns_abstracts_cleaned.pkl'):
+    abstracts_cleaned=pickle.load(open('ns_abstracts_cleaned.pkl','rb'))
     print('loaded ')
 else:
     print('cleaning abstracts')
     abstracts_cleaned={}
     for k in abstracts.keys():
         abstracts_cleaned[k],_=clean_abstract(abstracts[k])
-    pickle.dump(abstracts_cleaned,open('abstracts_cleaned.pkl','wb'))
+    pickle.dump(abstracts_cleaned,open('ns_abstracts_cleaned.pkl','wb'))
 # get vector projection for each abstract
-ndims=20
+ndims=50
 print('loading Doc2Vec model')
-model_docs=Doc2Vec.load('doc2vec_trigram_%ddims.model'%ndims)
+model_docs=Doc2Vec.load('models/doc2vec_trigram_%ddims.model'%ndims)
 
 print('getting vector projections')
 pmids=list(desmtx.index)
