@@ -1,5 +1,5 @@
 clean:
-	rm -f doc2vec.o* bigram_transformer.pkl trigram_transformer.pkl doc_td.pkl cleaned_abstracts.pkl 
+	rm -f doc2vec.o* bigram_transformer.pkl trigram_transformer.pkl doc_td.pkl cleaned_abstracts.pkl  model_check_results.pkl ns_abstracts_cleaned.pkl ns_inferred_vectors.npy
 
 modelclean:
 	rm -f doc2vec.o* models/doc2vec_trigram* model.txt 
