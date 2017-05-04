@@ -1,5 +1,5 @@
 clean:
-	rm -f doc2vec.o* bigram_transformer.pkl trigram_transformer.pkl doc_td.pkl model.txt 
+	rm -f doc2vec.o* bigram_transformer.pkl trigram_transformer.pkl doc_td.pkl cleaned_abstracts.pkl model.txt 
 
 modelclean:
 	rm -f doc2vec.o* doc2vec_trigram* model.txt 
