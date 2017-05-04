@@ -1,8 +1,8 @@
 clean:
-	rm -f doc2vec.o* bigram_transformer.pkl trigram_transformer.pkl doc_td.pkl cleaned_abstracts.pkl model.txt 
+	rm -f doc2vec.o* bigram_transformer.pkl trigram_transformer.pkl doc_td.pkl cleaned_abstracts.pkl 
 
 modelclean:
-	rm -f doc2vec.o* doc2vec_trigram* model.txt 
+	rm -f doc2vec.o* models/doc2vec_trigram* model.txt 
 
 dimtest:
 	sbatch dimtest2.slurm
