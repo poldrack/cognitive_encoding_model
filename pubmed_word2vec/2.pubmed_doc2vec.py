@@ -18,22 +18,14 @@ import nltk
 from joblib import Parallel, delayed
 
 from text_cleanup import text_cleanup
+from get_journals import get_journals
 
 if not os.path.exists('models'):
     os.mkdir('models')
     
 use_cogat_phrases=True # also transform 3+ word cogat Phrases
 
-journals=['J Exp Psychol Learn Mem Cogn','Cognition','Mem Cognit',
-            'J Exp Psychol Gen','J Exp Psychol Appl',
-            'J Exp Psychol Hum Percept Perform','Cogn Psychol',
-            'Cogn Sci','Atten Percept Psychophys',
-            'Psychon Bull Rev',
-            'Cogn Emot','J Vis',
-            'Psychol Rev','Psychol Bull',
-            'Psychol Sci','Pers Soc Psychol Bull',
-            'J Pers Soc Psychol','J Res Pers',
-            'J Exp Soc Psychol','Emotion','Motiv Emot']
+journals=get_journals()
 
 # preprocess and clean up text
 if os.path.exists('doc_td.pkl'):
@@ -78,7 +70,6 @@ else:
                 for i in range(100):
                     all_cleaned_abstracts.append(c_lemm)
         pickle.dump(cleaned_cogat_concepts,open('cleaned_cogat_concepts.pkl','wb'))
-    asdf
 
 
     if os.path.exists('trigram_transformer.pkl'):
