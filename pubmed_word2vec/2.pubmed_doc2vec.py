@@ -17,12 +17,11 @@ import nltk
 
 from joblib import Parallel, delayed
 
-from text_cleanup import text_cleanup
-from get_journals import get_journals
+from utils import text_cleanup, get_journals
 
 if not os.path.exists('models'):
     os.mkdir('models')
-    
+
 use_cogat_phrases=True # also transform 3+ word cogat Phrases
 
 journals=get_journals()
@@ -56,7 +55,7 @@ else:
     if use_cogat_phrases:
         wordnet_lemmatizer=WordNetLemmatizer()
         desmtx_df=pandas.read_csv('../neurosynth/data/desmtx.csv',index_col=0)
-        cogat_concepts=[i for i in list(desmtx_df.columns)]
+        cogat_concepts=[i.lower() for i in list(desmtx_df.columns)]
         # kludge - create enough documents with each concept for it to end up
         # in the n-gram list
         cleaned_cogat_concepts={}
