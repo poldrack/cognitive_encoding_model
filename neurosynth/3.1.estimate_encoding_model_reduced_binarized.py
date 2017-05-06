@@ -70,7 +70,7 @@ if __name__=="__main__":
     parser.add_argument('-s',"--shuffle", help="shuffle target variable",
                         action='store_true')
     args=parser.parse_args()
-    
+
     if args.verbose:
         print('ARGS:',args)
 
@@ -119,7 +119,7 @@ if __name__=="__main__":
 
 
 
-    for i in range(2): #(data.shape[1]):
+    for i in range(data.shape[1]):
 
             for train, test in skf.split(desmtx,data[:,i]):
                 traindata=data[train,i].copy()
@@ -128,7 +128,8 @@ if __name__=="__main__":
                 Xtest=desmtx.iloc[test]
                 cv=LogisticRegressionCV(Cs=args.n_Cs,penalty=args.penalty,
                                                 class_weight='balanced',
-                                                solver=args.solver)
+                                                solver=args.solver,
+                                                n_jobs=args.n_jobs)
                 if args.shuffle==True:
                     numpy.random.shuffle(traindata)
                 cv.fit(Xtrain,traindata)
