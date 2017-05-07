@@ -3,26 +3,9 @@ import pandas,numpy
 from sklearn.metrics import f1_score
 import glob
 
-try:
-    results
-    simdata
-except:
-    results=pickle.load(open('results/fitted_lrcv_reduced.pkl','rb'))
+results=pickle.load(open('results/fitted_lrcv_reduced.pkl','rb'))
 
-    shuf_files=glob.glob('results/fitted_lrcv_reduced_shuffle_*.pkl')
-
-
-    for i,f in enumerate(shuf_files):
-        _,r,_=pickle.load(open(f,'rb'))
-        r_ar=numpy.array(r)
-        if i==0:
-            simdata=r_ar[:,2]
-        else:
-            simdata=numpy.vstack((simdata,r_ar[:,2]))
-
-simmax=simdata.max(0)
-r_ar=numpy.array(results[1])
-print(numpy.sum(r_ar[:,2]>simmax))
+shuf_files=glob.glob('results/fitted_lrcv_reduced_shuffle_*.pkl')
 
 # load data and compute dice for each study
 desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
@@ -37,3 +20,11 @@ pred_scores=numpy.zeros(data.shape[0])
 for i in range(data.shape[0]):
    pred_scores[i]=f1_score(data[i,:],pred[i,:])
 numpy.save('pred_scores.npy',pred_scores)
+
+pred_scores_shuf=numpy.zeros((data.shape[0],len(shuf_files)))
+print('computing f scores for shuffled data (slow!)')
+
+for i,f in enumerate(shuf_files):
+    p,r,_=pickle.load(open(f,'rb'))
+    for j in range(data.shape[0]):
+       pred_scores_shuf[j,i]=f1_score(data[j,:],p[j,:])
