@@ -28,3 +28,4 @@ for i,f in enumerate(shuf_files):
     p,r,_=pickle.load(open(f,'rb'))
     for j in range(data.shape[0]):
        pred_scores_shuf[j,i]=f1_score(data[j,:],p[j,:])
+numpy.save('pred_scores_shuf.npy',pred_scores_shuf)
