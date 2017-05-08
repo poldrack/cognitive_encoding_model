@@ -17,7 +17,11 @@ s=numpy.sum(data,1)
 data=data[s>0,:]
 desmtx=desmtx.ix[s>0]
 data=(data>0).astype('int')
-pred=results[0]
+dupes=desmtx.duplicated()
+desmtx=desmtx.ix[dupes==False]
+data=data[dupes.values==False,:]
+pred=results[0][numpy.where(dupes==False)]
+
 
 def test_match(data1,data2,pred1,pred2,scorer=jaccard_similarity_score):
     f1_d1_p1=scorer(data1,pred1)
@@ -38,8 +42,8 @@ for i in range(data.shape[0]):
     for j in range(i+1, data.shape[0]):
         coords.append((i,j))
 
-coords=coords[:8]
-n_jobs=40
+#coords=coords[:8]
+n_jobs=128
 print("computing accuracies")
 accuracy_list=Parallel(n_jobs=n_jobs)(delayed(test_match)(data[i,:],data[j,:],pred[i,:],pred[j,:]) for i,j in coords)
 pickle.dump((coords,accuracy_list),open('pred_accuracy_list.pkl','wb'))
