@@ -1,5 +1,6 @@
 """
-compute accuracy for pairs of images
+compute accuracy for pairs of images in each test set
+
 """
 
 import pickle
@@ -17,10 +18,12 @@ s=numpy.sum(data,1)
 data=data[s>0,:]
 desmtx=desmtx.ix[s>0]
 data=(data>0).astype('int')
-dupes=desmtx.duplicated()
-desmtx=desmtx.ix[dupes==False]
-data=data[dupes.values==False,:]
-pred=results[0][numpy.where(dupes==False)]
+
+# dupes=desmtx.duplicated()
+# desmtx=desmtx.ix[dupes==False]
+# data=data[dupes.values==False,:]
+#pred=results[0][numpy.where(dupes==False)]
+pred=results[0]
 
 
 def test_match(data1,data2,pred1,pred2,scorer=jaccard_similarity_score):
@@ -35,12 +38,12 @@ def test_match(data1,data2,pred1,pred2,scorer=jaccard_similarity_score):
 
 # compare all possible combinations of images
 print('getting coordinates')
-
-accuracy=numpy.zeros((data.shape[0],data.shape[0]))
 coords=[]
-for i in range(data.shape[0]):
-    for j in range(i+1, data.shape[0]):
-        coords.append((i,j))
+for fold in range(len(results[3])):
+    test=results[3][fold]
+    for i in range(test.shape[0]):
+        for j in range(i+1, test.shape[0]):
+            coords.append((test[i],test[j]))
 
 #coords=coords[:8]
 n_jobs=128
