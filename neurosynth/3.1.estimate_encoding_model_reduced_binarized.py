@@ -1,9 +1,7 @@
 # estimate encoding model on full dataset
-# and test identification accuracy
-# baby step towards crossvalidation- if it doesn't work here
-# then it certainly won't work on out-of-sample data
 # here we binarize (given the zero-inflated nature of the data)
 # and use logistic regression
+# save test splits for use in later quantification of accuracy
 
 import os,time,sys
 import argparse
@@ -118,10 +116,11 @@ if __name__=="__main__":
     skf = StratifiedKFold(n_splits=args.n_folds,shuffle=True)
 
 
-
+    testsplits=[]
     for i in range(data.shape[1]):
 
             for train, test in skf.split(desmtx,data[:,i]):
+                testplits.append(test)
                 traindata=data[train,i].copy()
                 testdata=data[test,i].copy()
                 Xtrain=desmtx.iloc[train]
@@ -139,7 +138,7 @@ if __name__=="__main__":
                 print(output[-1])
                 print('time:',time.time() - t)
             t=time.time()
-    pickle.dump((p,output,args),open(outfile,'wb'))
+    pickle.dump((p,output,args,testsplits),open(outfile,'wb'))
 
     if args.getsim:
         # assess similarity of predicted to actual
