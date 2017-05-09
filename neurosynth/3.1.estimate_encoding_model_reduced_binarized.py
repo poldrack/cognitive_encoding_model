@@ -118,33 +118,33 @@ if __name__=="__main__":
     skf = StratifiedKFold(n_splits=args.n_folds,shuffle=True)
 
 
-    testsplits=[]
     if args.prototype:
         print('using prototype, only 1 variable')
         nvars=1
     else:
         nvars=data.shape[1]
-    for i in range(nvars):
 
-            for train, test in skf.split(desmtx,data[:,i]):
-                testsplits.append(test)
-                traindata=data[train,i].copy()
-                testdata=data[test,i].copy()
-                Xtrain=desmtx.iloc[train]
-                Xtest=desmtx.iloc[test]
-                cv=LogisticRegressionCV(Cs=args.n_Cs,penalty=args.penalty,
-                                                class_weight='balanced',
-                                                solver=args.solver,
-                                                n_jobs=args.n_jobs)
-                if args.shuffle==True:
-                    numpy.random.shuffle(traindata)
-                cv.fit(Xtrain,traindata)
-                p[test,i]=cv.predict(Xtest)
-            output.append([i,cv.C_[0],f1_score(data[:,i],p[:,i])])
-            if args.verbose:
-                print(output[-1])
-                print('time:',time.time() - t)
-            t=time.time()
+    for train, test in skf.split(desmtx,data[:,i]):
+        testsplits=[]
+        testsplits.append(test)
+        for i in range(nvars):
+            traindata=data[train,i].copy()
+            testdata=data[test,i].copy()
+            Xtrain=desmtx.iloc[train]
+            Xtest=desmtx.iloc[test]
+            cv=LogisticRegressionCV(Cs=args.n_Cs,penalty=args.penalty,
+                                            class_weight='balanced',
+                                            solver=args.solver,
+                                            n_jobs=args.n_jobs)
+            if args.shuffle==True:
+                numpy.random.shuffle(traindata)
+            cv.fit(Xtrain,traindata)
+            p[test,i]=cv.predict(Xtest)
+        output.append([i,cv.C_[0],f1_score(data[:,i],p[:,i])])
+        if args.verbose:
+            print(output[-1])
+            print('time:',time.time() - t)
+        t=time.time()
     pickle.dump((p,output,args,testsplits),open(outfile,'wb'))
 
     if args.getsim:
