@@ -61,9 +61,11 @@ if __name__=="__main__":
                         default='l2')
     parser.add_argument("--getsim", help="compute similarity (slow)",
                         action='store_true')
-    parser.add_argument('-e',"--expanded", help="shuffle target variable",
+    parser.add_argument('-p',"--prototype", help="use limited number of cycles for prototyping",
                         action='store_true')
-    parser.add_argument('-f',"--force_true", help="shuffle target variable",
+    parser.add_argument('-e',"--expanded", help="use expanded design matrix",
+                        action='store_true')
+    parser.add_argument('-f',"--force_true", help="force recomputation",
                         action='store_true')
     parser.add_argument('-s',"--shuffle", help="shuffle target variable",
                         action='store_true')
@@ -117,10 +119,15 @@ if __name__=="__main__":
 
 
     testsplits=[]
-    for i in range(data.shape[1]):
+    if args.prototype:
+        print('using prototype, only 1 variable')
+        nvars=1
+    else:
+        nvars=data.shape[1]
+    for i in range(nvars):
 
             for train, test in skf.split(desmtx,data[:,i]):
-                testplits.append(test)
+                testsplits.append(test)
                 traindata=data[train,i].copy()
                 testdata=data[test,i].copy()
                 Xtrain=desmtx.iloc[train]
