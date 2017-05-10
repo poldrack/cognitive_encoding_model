@@ -11,7 +11,7 @@ import pandas,numpy
 import pickle
 
 from sklearn.linear_model import LogisticRegressionCV
-from sklearn.model_selection import StratifiedKFold
+from sklearn.model_selection import KFold
 
 from sklearn.metrics import f1_score
 from joblib import Parallel, delayed
@@ -115,7 +115,7 @@ if __name__=="__main__":
     output=[]
     p=numpy.zeros(data.shape)
     t=time.time()
-    skf = StratifiedKFold(n_splits=args.n_folds,shuffle=True)
+    skf = KFold(n_splits=args.n_folds,shuffle=True)
 
 
     if args.prototype:
@@ -124,7 +124,7 @@ if __name__=="__main__":
     else:
         nvars=data.shape[1]
 
-    for train, test in skf.split(desmtx,data[:,i]):
+    for train, test in skf.split(desmtx):
         testsplits=[]
         testsplits.append(test)
         for i in range(nvars):
