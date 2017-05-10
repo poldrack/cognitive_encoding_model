@@ -59,8 +59,6 @@ if __name__=="__main__":
                             default=25)
     parser.add_argument("--penalty", help="penalty type for LR",
                         default='l2')
-    parser.add_argument("--getsim", help="compute similarity (slow)",
-                        action='store_true')
     parser.add_argument('-p',"--prototype", help="use limited number of cycles for prototyping",
                         action='store_true')
     parser.add_argument('-e',"--expanded", help="use expanded design matrix",
@@ -124,8 +122,8 @@ if __name__=="__main__":
     else:
         nvars=data.shape[1]
 
+    testsplits=[]
     for train, test in skf.split(desmtx):
-        testsplits=[]
         testsplits.append(test)
         for i in range(nvars):
             traindata=data[train,i].copy()
@@ -146,9 +144,3 @@ if __name__=="__main__":
             print('time:',time.time() - t)
         t=time.time()
     pickle.dump((p,output,args,testsplits),open(outfile,'wb'))
-
-    if args.getsim:
-        # assess similarity of predicted to actual
-        results=Parallel(n_jobs=args.n_jobs)(delayed(find_match)(i,p,data) for i in range(p.shape[0]))
-
-        pickle.dump(results,open('results/similarity_results%s%s.pkl'%(expflag,shuf_flag),'wb'))
