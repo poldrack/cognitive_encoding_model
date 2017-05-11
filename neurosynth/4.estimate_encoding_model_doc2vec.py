@@ -53,6 +53,8 @@ if __name__=="__main__":
                             default=-1)
     parser.add_argument("--n_folds", help="number of CV folds",type=int,
                             default=4)
+    parser.add_argument("--n_dims", help="number of model dims",type=int,
+                            default=50)
     parser.add_argument("--n_Cs", help="number of C values",type=int,
                             default=25)
     parser.add_argument("--penalty", help="penalty type for LR",
@@ -74,10 +76,10 @@ if __name__=="__main__":
             print('SHUFFLING DATA')
     else:
         shuf_flag=''
-
+    ndims=args.n_dims
     # load data and estimate model on full dataset
-    data=pickle.load(open('neurosynth_reduced.pkl','rb'))
-    desmtx=numpy.load('../pubmed_word2vec/ns_inferred_vectors.npy')
+    data=pickle.load(open('data/neurosynth_reduced_cleaned.pkl','rb'))
+    desmtx=pandas.read_csv('data/ns_doc2vec_%ddims_projection.csv'%ndims,index_col=0)
     outfile='results/fitted_lrcv_doc2vec%s.pkl'%shuf_flag
 
     # make sure output directory exists
@@ -85,15 +87,6 @@ if __name__=="__main__":
         if not os.path.exists(os.path.dirname(outfile)):
             os.mkdir(os.path.dirname(outfile))
 
-    # remove datasets with no signals in ROIs
-
-    s=numpy.sum(data,1)
-    data=data[s>0,:]
-    desmtx=desmtx.ix[s>0]
-
-    #dupes=desmtx.duplicated()
-    #desmtx=desmtx.ix[dupes==False]
-    #data=data[dupes.values==False,:]
     if args.verbose:
         print('binarizing data')
     data=(data>0).astype('int')
