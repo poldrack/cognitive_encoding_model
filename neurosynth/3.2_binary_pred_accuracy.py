@@ -9,7 +9,15 @@ from sklearn.metrics import f1_score,jaccard_similarity_score
 import glob
 from joblib import Parallel, delayed
 
-results=pickle.load(open('results/fitted_lrcv_reduced.pkl','rb'))
+expanded=True
+
+if expanded:
+    results=pickle.load(open('results/fitted_lrcv_reduced_expanded.pkl','rb'))
+    expflag='_expanded'
+
+else:
+    results=pickle.load(open('results/fitted_lrcv_reduced.pkl','rb'))
+    expflag=''
 
 # load data and compute dice for each study
 desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
@@ -39,16 +47,17 @@ def test_match(data1,data2,pred1,pred2,scorer=jaccard_similarity_score):
 # compare all possible combinations of images
 print('getting coordinates')
 coords=[]
+assert len(results[3])==4
+
 for fold in range(len(results[3])):
     test=results[3][fold]
     for i in range(test.shape[0]):
         for j in range(i+1, test.shape[0]):
             coords.append((test[i],test[j]))
 
+
 #coords=coords[:8]
 n_jobs=128
 print("computing accuracies")
 accuracy_list=Parallel(n_jobs=n_jobs)(delayed(test_match)(data[i,:],data[j,:],pred[i,:],pred[j,:]) for i,j in coords)
-pickle.dump((coords,accuracy_list),open('pred_accuracy_list.pkl','wb'))
-#for ctr,c in enumerate(coords):
-#    accuracy[c[0],c[1]]=accuracy_list[ctr]
+pickle.dump((coords,accuracy_list),open('results/pred_accuracy_list%s.pkl'%expflag,'wb'))
