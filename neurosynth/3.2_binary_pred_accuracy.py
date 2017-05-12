@@ -3,25 +3,28 @@ compute accuracy for pairs of images in each test set
 
 """
 
-import pickle
+import pickle,sys
 import pandas,numpy
 from sklearn.metrics import f1_score,jaccard_similarity_score
 import glob
 from joblib import Parallel, delayed
 
-expanded=True
+dataset=sys.argv[1]
+assert dataset in ['expanded','cogat','doc2vec']
 
-if expanded:
+if dataset=='expanded':
     results=pickle.load(open('results/fitted_lrcv_reduced_expanded.pkl','rb'))
-    expflag='_expanded'
-
+elif dataset=='doc2vec'
+    results=pickle.load(open('results/fitted_lrcv_doc2vec.pkl','rb'))
 else:
     results=pickle.load(open('results/fitted_lrcv_reduced.pkl','rb'))
-    expflag=''
+
+expflag='_'+dataset
 
 # load data and compute dice for each study
 desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
-data=pickle.load(open('neurosynth_reduced.pkl','rb'))
+data=pickle.load(open('data/neurosynth_reduced.pkl','rb'))
+
 s=numpy.sum(data,1)
 data=data[s>0,:]
 desmtx=desmtx.ix[s>0]
@@ -57,7 +60,7 @@ for fold in range(len(results[3])):
 
 
 #coords=coords[:8]
-n_jobs=128
+n_jobs=48
 print("computing accuracies")
 accuracy_list=Parallel(n_jobs=n_jobs)(delayed(test_match)(data[i,:],data[j,:],pred[i,:],pred[j,:]) for i,j in coords)
 pickle.dump((coords,accuracy_list),open('results/pred_accuracy_list%s.pkl'%expflag,'wb'))
