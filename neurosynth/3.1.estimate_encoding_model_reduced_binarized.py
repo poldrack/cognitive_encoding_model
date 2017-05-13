@@ -80,7 +80,7 @@ if __name__=="__main__":
         shuf_flag=''
 
     # load data and estimate model on full dataset
-    data=pickle.load(open('neurosynth_reduced.pkl','rb'))
+    data=pickle.load(open('data/neurosynth_reduced.pkl','rb'))
     if args.expanded:
         desmtx=pandas.read_csv('data/desmtx_expanded.csv',index_col=0)
         expflag='_expanded'
