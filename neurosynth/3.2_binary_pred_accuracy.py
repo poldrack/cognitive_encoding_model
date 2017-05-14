@@ -9,18 +9,11 @@ from sklearn.metrics import f1_score,jaccard_similarity_score
 import glob
 from joblib import Parallel, delayed
 
-dataset=sys.argv[1]
-assert dataset in ['expanded','cogat','doc2vec']
-
-if dataset=='expanded':
-    results=pickle.load(open('results/fitted_lrcv_reduced_expanded.pkl','rb'))
-elif dataset=='doc2vec'
-    results=pickle.load(open('results/fitted_lrcv_doc2vec.pkl','rb'))
-else:
-    results=pickle.load(open('results/fitted_lrcv_reduced.pkl','rb'))
-
-expflag='_'+dataset
-
+results=sys.argv[1]
+assert os.path.exists(results)
+expflag='_'.join(os.path.basename(results).split('.')[0].split('_')[2:])
+outfile='results/pred_accuracy_list_%s.pkl'%expflag
+print('will save results to:',outfile)
 # load data and compute dice for each study
 desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
 data=pickle.load(open('data/neurosynth_reduced.pkl','rb'))
@@ -63,4 +56,4 @@ for fold in range(len(results[3])):
 n_jobs=48
 print("computing accuracies")
 accuracy_list=Parallel(n_jobs=n_jobs)(delayed(test_match)(data[i,:],data[j,:],pred[i,:],pred[j,:]) for i,j in coords)
-pickle.dump((coords,accuracy_list),open('results/pred_accuracy_list%s.pkl'%expflag,'wb'))
+pickle.dump((coords,accuracy_list),open(outfile,'wb'))
