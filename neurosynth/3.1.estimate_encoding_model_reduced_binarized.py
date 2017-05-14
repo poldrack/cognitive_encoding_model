@@ -11,7 +11,7 @@ import pandas,numpy
 import pickle
 
 from sklearn.linear_model import LogisticRegressionCV
-from sklearn.model_selection import KFold
+from sklearn.model_selection import KFold,StratifiedKFold
 
 from sklearn.metrics import f1_score
 from joblib import Parallel, delayed
@@ -55,6 +55,8 @@ if __name__=="__main__":
                             default=-1)
     parser.add_argument("--n_folds", help="number of CV folds",type=int,
                             default=4)
+    parser.add_argument("--minstudies", help="minimum number of entries in desmtx",type=int,
+                            default=0)
     parser.add_argument("--n_Cs", help="number of C values",type=int,
                             default=25)
     parser.add_argument("--penalty", help="penalty type for LR",
@@ -69,6 +71,8 @@ if __name__=="__main__":
                         action='store_true')
     args=parser.parse_args()
 
+    args.prototype=True
+    args.minstudies=200
     if args.verbose:
         print('ARGS:',args)
 
@@ -80,7 +84,7 @@ if __name__=="__main__":
         shuf_flag=''
 
     # load data and estimate model on full dataset
-    data=pickle.load(open('neurosynth_reduced.pkl','rb'))
+    data=pickle.load(open('data/neurosynth_reduced.pkl','rb'))
     if args.expanded:
         desmtx=pandas.read_csv('data/desmtx_expanded.csv',index_col=0)
         expflag='_expanded'
@@ -100,6 +104,9 @@ if __name__=="__main__":
     data=data[s>0,:]
     desmtx=desmtx.ix[s>0]
 
+    # remove desmtx columns with too few observations
+    if args.minstudies>0:
+        desmtx=desmtx.ix[:,desmtx.sum(0)>args.minstudies]
     #dupes=desmtx.duplicated()
     #desmtx=desmtx.ix[dupes==False]
     #data=data[dupes.values==False,:]
