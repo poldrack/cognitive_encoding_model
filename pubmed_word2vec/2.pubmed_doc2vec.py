@@ -9,7 +9,7 @@ import gensim.models
 import collections
 
 import random
-import pandas
+import numpy,pandas
 from gensim.models.doc2vec import Doc2Vec,TaggedDocument
 from gensim.models.doc2vec import TaggedDocument
 from nltk.stem import WordNetLemmatizer
@@ -144,4 +144,5 @@ results=[]
 docs_to_check=numpy.random.randint(0,len(doc_td),n_to_check)
 for i in docs_to_check:
     results.append(get_ranks(doc_td[i],model_docs))
+    print(i,results[-1])
 pickle.dump(results,open('model_check_results.pkl','wb'))
