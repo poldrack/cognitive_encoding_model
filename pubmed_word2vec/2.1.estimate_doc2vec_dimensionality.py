@@ -55,4 +55,4 @@ for train, test in kf.split(docs):
         model_docs.min_alpha=model_docs.alpha
     td=[test_docs[i].words for i in range(len(test_docs))]
     scores[test]=model_docs.score(td)
-numpy.save('scores_%d_dims.npy'%ndims,scores)
+numpy.save('cv_scores/scores_%d_dims.npy'%ndims,scores)
