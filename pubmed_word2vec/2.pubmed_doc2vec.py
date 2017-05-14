@@ -98,7 +98,7 @@ else:
 
 # fit model
 
-ndims=50
+ndims=300
 
 if os.path.exists('model.txt'):
     os.remove('model.txt')
@@ -112,8 +112,8 @@ else:
         model_docs=Doc2Vec.load('models/doc2vec_trigram_%ddims_vocab.model'%ndims)
     else:
         print('learning vocabulary')
-        model_docs=Doc2Vec(dm=1, size=ndims, window=5, negative=5,
-                hs=0, min_count=50, workers=22,iter=20,
+        model_docs=Doc2Vec(dm=0, size=ndims, window=15, negative=5,
+                hs=0, min_count=5, workers=46,iter=100,sample=1e-5,
                 alpha=0.025, min_alpha=0.025,dbow_words=1)
         model_docs.build_vocab(doc_td)
         model_docs.save('models/doc2vec_trigram_%ddims_vocab.model'%ndims)
