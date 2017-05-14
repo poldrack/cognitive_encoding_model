@@ -5,19 +5,19 @@ compute simlarity of images between all neurosynth datasets
 import os,pickle
 import numpy,pandas
 from joblib import Parallel, delayed
+from sklearn.metrics import f1_score,jaccard_similarity_score
 
-def vector_corr(i,data):
-    """
-    find the real image that most closely matches the index image
-    ala Kay et al., 2008
-    """
-    corr_all=numpy.zeros(data.shape[0])
-    for j in range(data.shape[0]):
-        corr_all[j]=numpy.corrcoef(data[i,:],data[j,:])[0,1]
-    return corr_all
+njobs=46
 
-data=pickle.load(open('../neurosynth/neurosynth_reduced_cleaned.pkl','rb'))
+coords=[]
+for i in range(data.shape[0]):
+    for j in range(i,data.shape[0]):
+        if i==j:
+            continue
+        coords.append((i,j))
 
-results=Parallel(n_jobs=20)(delayed(vector_corr)(i,data) for i in range(data.shape[0]))
+data=pickle.load(open('data/neurosynth_reduced_cleaned.pkl','rb'))
+data=(data>0).astype('int')
+results=Parallel(n_jobs=njobs)(delayed(jaccard_similarity_score)(data[i,:],data[j,:]) for i,j in coords)
 
 pickle.dump(results,open('ns_image_similarity_results.pkl','wb'))
