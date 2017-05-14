@@ -135,11 +135,13 @@ n_to_check=1000
 print('checking model performance for %d random selected abstracts'%n_to_check)
 ranks = []
 
-def get_ranks(doc_id,model_docs,doc_td):
-    inferred_vector = model_docs.infer_vector(doc_td[doc_id].words)
+def get_ranks(doc,model_docs):
+    inferred_vector = model_docs.infer_vector(doc.words)
     sims = model_docs.docvecs.most_similar([inferred_vector]) #, topn=len(model_docs.docvecs))
-    return [doc_td[doc_id].tags[0],int(sims[0][0]==doc_td[doc_id].tags[0]),sims[0][1]]
+    return [doc.tags[0],int(sims[0][0]==doc.tags[0]),sims[0][1]]
 
-random.shuffle(doc_td)
-results=Parallel(n_jobs=10)(delayed(get_ranks)(i,model_docs,doc_td) for i in range(n_to_check))
+results=[]
+docs_to_check=numpy.random.randint(0,len(doc_td),n_to_check)
+for i in docs_to_check:
+    results.append(get_ranks(doc_td[i],model_docs))
 pickle.dump(results,open('model_check_results.pkl','wb'))
