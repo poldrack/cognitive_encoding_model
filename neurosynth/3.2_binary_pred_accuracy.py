@@ -3,17 +3,18 @@ compute accuracy for pairs of images in each test set
 
 """
 
-import pickle,sys
+import pickle,sys,os
 import pandas,numpy
 from sklearn.metrics import f1_score,jaccard_similarity_score
 import glob
 from joblib import Parallel, delayed
 
-results=sys.argv[1]
-assert os.path.exists(results)
-expflag='_'.join(os.path.basename(results).split('.')[0].split('_')[2:])
+infile=sys.argv[1]
+assert os.path.exists(infile)
+expflag='_'.join(os.path.basename(infile).split('.')[0].split('_')[2:])
 outfile='results/pred_accuracy_list_%s.pkl'%expflag
 print('will save results to:',outfile)
+results=pickle.load(open(infile,'rb'))
 # load data and compute dice for each study
 desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
 data=pickle.load(open('data/neurosynth_reduced.pkl','rb'))
