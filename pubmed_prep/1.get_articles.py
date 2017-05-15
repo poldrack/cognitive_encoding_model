@@ -101,4 +101,4 @@ for j in journals:
 pickle.dump(abstracts,open('%s/abstracts.pkl'%datadir,'wb'))
 #pickle.dump(authors,open('%s/authors.pkl'%datadir,'wb'))
 authors_cleaned=[i.lower() for i in list(set(authors))]
-pickle.dump(authors_cleaned,open('authors_cleaned.pkl','wb'))
+pickle.dump(authors_cleaned,open('%s/authors_cleaned.pkl'%datadir,'wb'))
