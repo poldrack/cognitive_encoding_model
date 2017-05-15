@@ -37,7 +37,7 @@ def text_cleanup(text,strip_stopwords=True,strip_acronyms=True,
         text = ' '.join([i for i in text.split(' ') if not i in acronyms])
     if strip_names:
         authors=load_authors()
-        text = ' '.join([i for i in text.split(' ') if not i in acronyms])
+        text = ' '.join([i for i in text.split(' ') if not i in authors])
     if lemmatize:
         wordnet_lemmatizer=WordNetLemmatizer()
         docsplit=[wordnet_lemmatizer.lemmatize(i) for i in nltk.tokenize.word_tokenize(text)]
