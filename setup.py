@@ -7,7 +7,7 @@
 """ MRIQC setup script """
 import os
 import sys
-from cogencoding import (__version__, __description__, __license__,
+from cogenc import (__version__, __description__, __license__,
                    __author__, __email__, __longdesc__)
 
 REQ_LINKS = []
