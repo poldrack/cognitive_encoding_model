@@ -204,6 +204,13 @@ class Neurosynth:
 
 if __name__=='__main__':
     # setup
+    datadir='../data/pubmed'
+    nsdatadir='../data/neurosynth'
+    if not os.path.exists(datadir):
+       os.makedirs(datadir)
+    if not os.path.exists(nsdatadir):
+       os.makedirs(nsdatadir)
+
     resolution=3
     if os.path.exists('data/neurovault_%dmm.pkl'%resolution):
         print('loading cached structure')
