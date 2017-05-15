@@ -2,7 +2,7 @@
 util functions
 """
 
-import string,re
+import os.string,re
 import pickle
 import nltk
 from nltk.stem import WordNetLemmatizer
