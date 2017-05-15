@@ -183,8 +183,8 @@ class Neurosynth:
             pickle.dump(self,f)
 
     def build_design_matrix(self,force_load=False):
-        if not force_load and os.path.exists(os.path.join(datadir,'desmtx.csv')):
-            self.desmtx=pandas.DataFrame.from_csv(os.path.join(datadir,'desmtx.csv'))
+        if not force_load and os.path.exists(os.path.join(self.datadir,'desmtx.csv')):
+            self.desmtx=pandas.DataFrame.from_csv(os.path.join(self.datadir,'desmtx.csv'))
             print('using cached design matrix')
             return
         print('building design matrix')
@@ -201,7 +201,7 @@ class Neurosynth:
             self.desmtx[k][pmids]=1
         # drop columns with too few matches
         self.desmtx=self.desmtx.ix[:,self.desmtx.sum()>self.ma_count_thresh]
-        self.desmtx.to_csv(os.path.join(datadir,'desmtx.csv'))
+        self.desmtx.to_csv(os.path.join(self.datadir,'desmtx.csv'))
 
 if __name__=='__main__':
     # setup
@@ -233,7 +233,7 @@ if __name__=='__main__':
     if not os.path.exists(os.path.join(nsdatadir,'imgdata.npy')):
         print('loading dataset')
         data=n.dataset.get_image_data(list(n.desmtx.index)).T
-        numpy.save(os.path.join(nsdatadir,'data/imgdata.npy'),data)
+        numpy.save(os.path.join(nsdatadir,'imgdata.npy'),data)
 
     else:
         data=numpy.load(os.path.join(nsdatadir,'imgdata.npy'))
