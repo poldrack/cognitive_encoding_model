@@ -43,7 +43,7 @@ class Neurosynth:
         self.image_concepts=None
         self.desmtx=None
 
-        if not os.path.exists(self.datadir):
+        if not os.path.exists(os.path.join(self.datadir,'database.txt')):
             print('downloading neurosynth data')
             ns.dataset.download(path='/tmp', unpack=True)
             print('extracting data')
@@ -64,8 +64,8 @@ class Neurosynth:
             self.dataset=Dataset.load(os.path.join(self.datadir,'dataset.pkl'))
         else:
             print('loading database - this takes a few minutes')
-            self.dataset = Dataset(os.path.join(datadir,'database.txt'))
-            self.dataset.add_features(os.path.join(datadir,'features.txt'))
+            self.dataset = Dataset(os.path.join(self.datadir,'database.txt'))
+            self.dataset.add_features(os.path.join(self.datadir,'features.txt'))
 
             self.dataset.save(os.path.join(self.datadir,'dataset.pkl'))
 
