@@ -3,7 +3,7 @@ create two-dimensional embedding for pubmed abstracts
 identified from psychology journals using 1.get_articles.py
 """
 
-import pickle,os
+import pickle,os,sys
 import string,re
 import gensim.models
 import collections
@@ -16,14 +16,14 @@ from gensim.models.doc2vec import TaggedDocument
 import nltk
 
 from joblib import Parallel, delayed
-
+sys.path.insert(0,'../utils')
 from utils import text_cleanup, get_journals
 
 use_cogat_phrases=True # also transform 3+ word cogat Phrases
 
-journals=get_journals()
 datadir='../data/pubmed'
 nsdatadir='../data/neurosynth'
+journals=get_journals(datadir)
 
 # get list of all abstracts for training of bigram detector
 if os.path.exists(os.path.join(datadir,'cleaned_abstracts.pkl')):
@@ -38,7 +38,7 @@ else:
     for j in journals:
         cleaned_abstracts[j]={}
         for pmid in abstracts_raw[j].keys():
-            abstract=text_cleanup(abstracts_raw[j][pmid][0])
+            abstract=text_cleanup(abstracts_raw[j][pmid][0],datadir=datadir)
             all_cleaned_abstracts.append(abstract.split(' '))
             cleaned_abstracts[j][pmid]=abstract
 
@@ -58,7 +58,7 @@ if use_cogat_phrases:
         if ')' in c:
             continue
         else:
-            cleaned_cogat_concepts[c]=text_cleanup(c)
+            cleaned_cogat_concepts[c]=text_cleanup(c,datadir=datadir)
             for i in range(100):
                 all_cleaned_abstracts.append(cleaned_cogat_concepts[c])
     pickle.dump(cleaned_cogat_concepts,open(os.path.join(datadir,'cleaned_cogat_concepts.pkl'),'wb'))
