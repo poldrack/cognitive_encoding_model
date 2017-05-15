@@ -38,6 +38,7 @@ else:
         for pmid in abstracts_raw[j].keys():
             abstract=text_cleanup(abstracts_raw[j][pmid][0])
             all_cleaned_abstracts.append(abstract)
+            cleaned_abstracts[j][pmid]=abstract
 
     pickle.dump((cleaned_abstracts,all_cleaned_abstracts),open('cleaned_abstracts.pkl','wb'))
 
@@ -81,7 +82,7 @@ doc_td=[]
 for j in cleaned_abstracts.keys():
     print(j)
     for pmid in cleaned_abstracts[j].keys():
-        docsplit=cleaned_abstracts[j][pmid].split(' ')
+        docsplit=[i for i in cleaned_abstracts[j][pmid].split(' ') if len(i)>0]
         doc_td.append(TaggedDocument(trigram_transformer[bigram_transformer[docsplit]],[pmid]))
 
 pickle.dump(doc_td,open('doc_td.pkl','wb'))
