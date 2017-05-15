@@ -45,7 +45,7 @@ def text_cleanup(text,strip_stopwords=True,strip_acronyms=True,
     return text
 
 
-def get_journals():
-    with open('journals.txt') as f:
+def get_journals(datadir='.'):
+    with open(os.path.join(datadir,'journals.txt')) as f:
         journals=[i.strip() for i in f.readlines()]
     return journals
