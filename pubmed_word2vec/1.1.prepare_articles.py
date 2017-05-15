@@ -7,6 +7,7 @@ import pickle,os
 import string,re
 import gensim.models
 import collections
+from nltk.stem import WordNetLemmatizer
 
 import random
 import numpy,pandas
