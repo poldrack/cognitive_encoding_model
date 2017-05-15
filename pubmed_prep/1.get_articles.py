@@ -25,7 +25,7 @@ delay=0.5 # delay for pubmed api
 terms_to_exclude=["neural","neuroimaging","brain","positron emission tomography","fMRI", "functional MRI", "functional magnetic resonance imaging"]
 force_new=True
 
-with open('%s/journals.txt'%pubmed_data) as f:
+with open('%s/journals.txt'%datadir) as f:
     journals=[i.strip() for i in f.readlines()]
 
 
