@@ -37,7 +37,7 @@ else:
         cleaned_abstracts[j]={}
         for pmid in abstracts_raw[j].keys():
             abstract=text_cleanup(abstracts_raw[j][pmid][0])
-            all_cleaned_abstracts.append(abstract)
+            all_cleaned_abstracts.append(abstract.split(' '))
             cleaned_abstracts[j][pmid]=abstract
 
     pickle.dump((cleaned_abstracts,all_cleaned_abstracts),open('cleaned_abstracts.pkl','wb'))
