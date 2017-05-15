@@ -13,23 +13,30 @@ import glob
 from Bio import Entrez
 
 Entrez.email='poldrack@stanford.edu'
-
-with open('journals.txt') as f:
-    journals=[i.strip() for i in f.readlines()]
-
+datadir='../data/pubmed'
+nsdatadir='../data/neurosynth'
+if not os.path.exists(datadir):
+   os.makedirs(datadir)
+if not os.path.exists(nsdatadir):
+   os.makedirs(nsdatadir)
 
 retmax=2000000
 delay=0.5 # delay for pubmed api
 terms_to_exclude=["neural","neuroimaging","brain","positron emission tomography","fMRI", "functional MRI", "functional magnetic resonance imaging"]
+force_new=True
+
+with open('%s/journals.txt'%pubmed_data) as f:
+    journals=[i.strip() for i in f.readlines()]
+
+
 extra_terms=''
 for t in terms_to_exclude:
     extra_terms=extra_terms+'NOT "%s" '%t
-force_new=True
 
 # get matching pubmed ids
-if os.path.exists('pmids.pkl') and not force_new:
+if os.path.exists('%s/pmids.pkl'%datadir) and not force_new:
     print('using cached pmids')
-    pmids=pickle.load(open('pmids.pkl','rb'))
+    pmids=pickle.load(open('%s/pmids.pkl'%datadir,'rb'))
 else:
     pmids={}
 
@@ -47,18 +54,18 @@ for j in journals:
     handle.close()
     pmids[j]=[int(i) for i in record['IdList']]
     print('found %d records for'%len(pmids[j]),j)
-pickle.dump(pmids,open('pmids.pkl','wb'))
+pickle.dump(pmids,open('%s/pmids.pkl'%datadir,'wb'))
 
 # get neurosynth data so that we can exclude any papers in the database
-nsdata=pandas.read_csv('../neurosynth/data/database.txt',index_col=0,sep='\t')
+nsdata=pandas.read_csv('%s/database.txt'%nsdatadir,index_col=0,sep='\t')
 ns_pmids=list(set(nsdata.index))
 
 # get abstract text
 # also save authors for later filtering
 
-if os.path.exists('abstracts.pkl') and not force_new:
+if os.path.exists('%s/abstracts.pkl'%datadir) and not force_new:
     print('using cached abstracts')
-    abstracts=pickle.load(open('abstracts.pkl','rb'))
+    abstracts=pickle.load(open('%s/abstracts.pkl'%datadir,'rb'))
 else:
     abstracts={}
     authors=[]
@@ -91,5 +98,7 @@ for j in journals:
     except:
         e = sys.exc_info()[0]
         print('problem with',j,e)
-pickle.dump(abstracts,open('abstracts.pkl','wb'))
-pickle.dump(authors,open('authors.pkl','wb'))
+pickle.dump(abstracts,open('%s/abstracts.pkl'%datadir,'wb'))
+#pickle.dump(authors,open('%s/authors.pkl'%datadir,'wb'))
+authors_cleaned=[i.lower() for i in list(set(authors))]
+pickle.dump(authors_cleaned,open('authors_cleaned.pkl','wb'))
