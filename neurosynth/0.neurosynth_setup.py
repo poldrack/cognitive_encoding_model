@@ -210,9 +210,9 @@ if __name__=='__main__':
        os.makedirs(nsdatadir)
 
     resolution=3
-    if os.path.exists('data/neurovault_%dmm.pkl'%resolution):
+    if os.path.exists('%s/neurovault_%dmm.pkl'%(nsdatadir,resolution)):
         print('loading cached structure')
-        n=pickle.load(open('data/neurovault_%dmm.pkl'%resolution,'rb'))
+        n=pickle.load(open('%s/neurovault_%dmm.pkl'%(nsdatadir,resolution),'rb'))
     else:
         n=Neurosynth(resolution=resolution,datadir=nsdatadir)
         n.get_dataset()
