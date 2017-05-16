@@ -15,4 +15,5 @@ if [ ! -d /home/poldrack/cognitive_encoding_model ]
 then
   git clone git@github.com:poldrack/cognitive_encoding_model.git
 fi
-
+cd cognitive_encoding_model
+python setup.py install
