@@ -77,6 +77,7 @@ for j in journals:
     maxtries=5
     tryctr=0
     while not good_record:
+        tryctr+=1
         try:
             handle = Entrez.efetch(db="pubmed", id=",".join(['%d'%i for i in pmids[j]]), retmode="xml")
             time.sleep(delay)
@@ -85,6 +86,8 @@ for j in journals:
         except:
             e = sys.exc_info()[0]
             print('problem with',tryctr,j,e)
+        if tryctr>maxtries:
+            break
     if not good_record:
         raise Exception('unsolvable problem with',j)
     abstracts[j]={}
@@ -104,7 +107,7 @@ for j in journals:
         else:
             pass #print('no abstract for',j,str(i['MedlineCitation']['PMID']))
 
-        print(j,': found %d abstracts from %d keys'%(len(abstracts[j]),len(pmids[j])))
+    print(j,': found %d abstracts from %d keys'%(len(abstracts[j]),len(pmids[j])))
 pickle.dump(abstracts,open('%s/abstracts.pkl'%datadir,'wb'))
 #pickle.dump(authors,open('%s/authors.pkl'%datadir,'wb'))
 authors_cleaned=[i.lower() for i in list(set(authors))]
