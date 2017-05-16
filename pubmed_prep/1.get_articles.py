@@ -2,7 +2,7 @@
 get abstracts for selected journals from pubmed
 """
 
-import os
+import os,sys
 import tarfile
 import pandas,numpy
 import pickle
