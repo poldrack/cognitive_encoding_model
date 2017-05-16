@@ -1,6 +1,7 @@
 sudo apt-get update
 sudo apt-get install gcc
 sudo apt-get install python-qt4
+sudo apt-get install make
 if [ ! -d /home/poldrack/anaconda3 ]
 then
    wget https://repo.continuum.io/archive/Anaconda3-4.3.1-Linux-x86_64.sh
