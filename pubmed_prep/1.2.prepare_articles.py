@@ -49,7 +49,7 @@ else:
 # bigram/trigram transformers, but not to the documents for modeling
 if use_cogat_phrases:
     wordnet_lemmatizer=WordNetLemmatizer()
-    desmtx_df=pandas.read_csv(os.path.join(nsdatadir,'data/desmtx.csv'),index_col=0)
+    desmtx_df=pandas.read_csv(os.path.join(nsdatadir,'desmtx.csv'),index_col=0)
     cogat_concepts=[i.lower() for i in list(desmtx_df.columns)]
     # kludge - create enough documents with each concept for it to end up
     # in the n-gram list
