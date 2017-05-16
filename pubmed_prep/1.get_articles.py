@@ -73,31 +73,38 @@ else:
 for j in journals:
     if j in abstracts:
         continue
-    try:
-        handle = Entrez.efetch(db="pubmed", id=",".join(['%d'%i for i in pmids[j]]), retmode="xml")
-        time.sleep(delay)
-        records=Entrez.read(handle)
-        abstracts[j]={}
-        for i in records['PubmedArticle']:
-            pmid=int(i['MedlineCitation']['PMID'])
-            if pmid in ns_pmids:
-                print('skippping neurosynth pmid',pmid)
-                continue
-            if 'AuthorList' in i['MedlineCitation']['Article']:
-                for au in i['MedlineCitation']['Article']['AuthorList']:
-                    if 'LastName' in au:
-                        authors.append(au['LastName'])
-                    else:
-                        print('hmm, no last name',au)
-            if 'Abstract' in i['MedlineCitation']['Article']:
-                abstracts[j][pmid]=i['MedlineCitation']['Article']['Abstract']['AbstractText']
-            else:
-                pass #print('no abstract for',j,str(i['MedlineCitation']['PMID']))
+    good_record=None
+    maxtries=5
+    tryctr=0
+    while not good_record:
+        try:
+            handle = Entrez.efetch(db="pubmed", id=",".join(['%d'%i for i in pmids[j]]), retmode="xml")
+            time.sleep(delay)
+            records=Entrez.read(handle)
+            good_record=True
+        except:
+            e = sys.exc_info()[0]
+            print('problem with',tryctr,j,e)
+    if not good_record:
+        raise Exception('unsolvable problem with',j)
+    abstracts[j]={}
+    for i in records['PubmedArticle']:
+        pmid=int(i['MedlineCitation']['PMID'])
+        if pmid in ns_pmids:
+            print('skippping neurosynth pmid',pmid)
+            continue
+        if 'AuthorList' in i['MedlineCitation']['Article']:
+            for au in i['MedlineCitation']['Article']['AuthorList']:
+                if 'LastName' in au:
+                    authors.append(au['LastName'])
+                else:
+                    print('hmm, no last name',au)
+        if 'Abstract' in i['MedlineCitation']['Article']:
+            abstracts[j][pmid]=i['MedlineCitation']['Article']['Abstract']['AbstractText']
+        else:
+            pass #print('no abstract for',j,str(i['MedlineCitation']['PMID']))
 
         print(j,': found %d abstracts from %d keys'%(len(abstracts[j]),len(pmids[j])))
-    except:
-        e = sys.exc_info()[0]
-        print('problem with',j,e)
 pickle.dump(abstracts,open('%s/abstracts.pkl'%datadir,'wb'))
 #pickle.dump(authors,open('%s/authors.pkl'%datadir,'wb'))
 authors_cleaned=[i.lower() for i in list(set(authors))]
