@@ -1,0 +1,8 @@
+gensim>=2.0.0
+nltk>=3.2.2
+biopython>=1.69
+nilearn>=0.3.0
+cognitiveatlas>=0.1.8
+neurosynth>=0.3.5
+py2neo<3
+joblib

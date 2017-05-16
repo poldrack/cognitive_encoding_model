@@ -2,23 +2,25 @@
 util functions
 """
 
-import string,re
+import os,string,re
 import pickle
 import nltk
 from nltk.stem import WordNetLemmatizer
 
 
-def load_acroynms(acronym_file='acronyms.txt'):
+def load_acroynms(datadir='./'):
+    acronym_file=os.path.join(datadir,'acronyms.txt')
     with open(acronym_file) as f:
         lines=[i.strip() for i in f.readlines()]
     return lines
 
-def load_authors(authors_file='authors_cleaned.pkl'):
+def load_authors(datadir='./'):
+    authors_file=os.path.join(datadir,'authors_cleaned.pkl')
     a=pickle.load(open(authors_file,'rb'))
     return a
 
 def text_cleanup(text,strip_stopwords=True,strip_acronyms=True,
-                strip_names=True,lemmatize=True):
+                strip_names=True,lemmatize=True,datadir='./'):
 
     text=text.lower()
     translate_table = dict((ord(char), ' ') for char in string.punctuation)
@@ -33,10 +35,10 @@ def text_cleanup(text,strip_stopwords=True,strip_acronyms=True,
         stopwords=nltk.corpus.stopwords.words('english')
         text = ' '.join([i for i in text.split(' ') if not i in stopwords])
     if strip_acronyms:
-        acronyms=load_acroynms()
+        acronyms=load_acroynms(datadir)
         text = ' '.join([i for i in text.split(' ') if not i in acronyms])
     if strip_names:
-        authors=load_authors()
+        authors=load_authors(datadir)
         text = ' '.join([i for i in text.split(' ') if not i in authors])
     if lemmatize:
         wordnet_lemmatizer=WordNetLemmatizer()
@@ -45,7 +47,7 @@ def text_cleanup(text,strip_stopwords=True,strip_acronyms=True,
     return text
 
 
-def get_journals():
-    with open('journals.txt') as f:
+def get_journals(datadir='.'):
+    with open(os.path.join(datadir,'journals.txt')) as f:
         journals=[i.strip() for i in f.readlines()]
     return journals

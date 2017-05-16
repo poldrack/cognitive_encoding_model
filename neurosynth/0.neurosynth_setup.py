@@ -25,7 +25,7 @@ def intersect(a, b):
     return list(set(a) & set(b))
 
 class Neurosynth:
-    def __init__(self,datadir='data',verbose=True,
+    def __init__(self,datadir='../data/neurosynth',verbose=True,
                     ma_count_thresh=16,
                     meta_image='consistency_z',
                     resolution=3):
@@ -43,7 +43,7 @@ class Neurosynth:
         self.image_concepts=None
         self.desmtx=None
 
-        if not os.path.exists(self.datadir):
+        if not os.path.exists(os.path.join(self.datadir,'database.txt')):
             print('downloading neurosynth data')
             ns.dataset.download(path='/tmp', unpack=True)
             print('extracting data')
@@ -64,8 +64,9 @@ class Neurosynth:
             self.dataset=Dataset.load(os.path.join(self.datadir,'dataset.pkl'))
         else:
             print('loading database - this takes a few minutes')
-            self.dataset = Dataset('data/database.txt')
-            self.dataset.add_features('data/features.txt')
+            self.dataset = Dataset(os.path.join(self.datadir,'database.txt'))
+            self.dataset.add_features(os.path.join(self.datadir,'features.txt'))
+
             self.dataset.save(os.path.join(self.datadir,'dataset.pkl'))
 
     def get_concepts(self,force_load=False):
@@ -178,12 +179,12 @@ class Neurosynth:
         numpy.save(os.path.join(self.datadir,'imgdata_%dmm.npy'%self.resolution),self.imgdata)
 
     def save(self):
-        with open('data/neurovault_%dmm.pkl'%self.resolution,'wb') as f:
+        with open('%s/neurovault_%dmm.pkl'%(self.datadir,self.resolution),'wb') as f:
             pickle.dump(self,f)
 
     def build_design_matrix(self,force_load=False):
-        if not force_load and os.path.exists('data/desmtx.csv'):
-            self.desmtx=pandas.DataFrame.from_csv('data/desmtx.csv')
+        if not force_load and os.path.exists(os.path.join(self.datadir,'desmtx.csv')):
+            self.desmtx=pandas.DataFrame.from_csv(os.path.join(self.datadir,'desmtx.csv'))
             print('using cached design matrix')
             return
         print('building design matrix')
@@ -200,16 +201,20 @@ class Neurosynth:
             self.desmtx[k][pmids]=1
         # drop columns with too few matches
         self.desmtx=self.desmtx.ix[:,self.desmtx.sum()>self.ma_count_thresh]
-        self.desmtx.to_csv('data/desmtx.csv')
+        self.desmtx.to_csv(os.path.join(self.datadir,'desmtx.csv'))
 
 if __name__=='__main__':
     # setup
+    nsdatadir='../data/neurosynth'
+    if not os.path.exists(nsdatadir):
+       os.makedirs(nsdatadir)
+
     resolution=3
     if os.path.exists('data/neurovault_%dmm.pkl'%resolution):
         print('loading cached structure')
         n=pickle.load(open('data/neurovault_%dmm.pkl'%resolution,'rb'))
     else:
-        n=Neurosynth(resolution=resolution)
+        n=Neurosynth(resolution=resolution,datadir=nsdatadir)
         n.get_dataset()
         n.get_concepts()
         n.get_concept_pmids()
@@ -225,12 +230,12 @@ if __name__=='__main__':
     # first, build design matrix
     print('loading dataset')
     # put into nsamples X nfeatures
-    if not os.path.exists('data/imgdata.npy'):
+    if not os.path.exists(os.path.join(nsdatadir,'imgdata.npy')):
         print('loading dataset')
         data=n.dataset.get_image_data(list(n.desmtx.index)).T
-        numpy.save('data/imgdata.npy',data)
+        numpy.save(os.path.join(nsdatadir,'imgdata.npy'),data)
 
     else:
-        data=numpy.load('data/imgdata.npy')
-    if not os.path.exists('all_ns_data.nii.gz'):
-        ns.base.imageutils.save_img(data.T,'all_ns_data.nii.gz',n.dataset.masker)
+        data=numpy.load(os.path.join(nsdatadir,'imgdata.npy'))
+    if not os.path.exists(os.path.join(nsdatadir,'all_ns_data.nii.gz')):
+        ns.base.imageutils.save_img(data.T,os.path.join(nsdatadir,'all_ns_data.nii.gz'),n.dataset.masker)

@@ -3,7 +3,7 @@ create two-dimensional embedding for pubmed abstracts
 identified from psychology journals using 1.get_articles.py
 """
 
-import pickle,os
+import pickle,os,sys
 import string,re
 import gensim.models
 import collections
@@ -16,38 +16,38 @@ from nltk.stem import WordNetLemmatizer
 import nltk
 
 from joblib import Parallel, delayed
-
+sys.path.insert(0,'../utils')
 from utils import text_cleanup, get_journals
+datadir='../data/pubmed'
+modeldir='../models/word2vec'
+if not os.path.exists(modeldir):
+    os.makedirs(modeldir)
 
-if not os.path.exists('models'):
-    os.mkdir('models')
-
-print('using saved text')
-doc_td=pickle.load(open('doc_td.pkl','rb'))
+doc_td=pickle.load(open('%s/doc_td.pkl'%datadir,'rb'))
 
 # fit model
 
 ndims=300
-force_new=True
+force_new=False
 
 
-if os.path.exists('model.txt'):
-    os.remove('model.txt')
+if os.path.exists('%s/model.txt'%modeldir):
+    os.remove('%s/model.txt'%modeldir)
 
-if os.path.exists('models/doc2vec_trigram_%ddims.model'%ndims) and not force_new:
+if os.path.exists('%s/doc2vec_trigram_%ddims.model'%(modeldir,ndims)) and not force_new:
     print('using saved model')
-    model_docs=Doc2Vec.load('models/doc2vec_trigram_%ddims.model'%ndims)
+    model_docs=Doc2Vec.load('%s/doc2vec_trigram_%ddims.model'%(modeldir,ndims))
 else:
-    if os.path.exists('models/doc2vec_trigram_%ddims_vocab.model'%ndims) and not force_new:
+    if os.path.exists('%s/doc2vec_trigram_%ddims_vocab.model'%(modeldir,ndims)) and not force_new:
         print("using saved vocabulary")
-        model_docs=Doc2Vec.load('models/doc2vec_trigram_%ddims_vocab.model'%ndims)
+        model_docs=Doc2Vec.load('%s/doc2vec_trigram_%ddims_vocab.model'%(modeldir,ndims))
     else:
         print('learning vocabulary')
         model_docs=Doc2Vec(dm=0, size=ndims, window=15, negative=5,
-                hs=0, min_count=5, workers=46,iter=100,sample=1e-5,
+                hs=0, min_count=5, workers=14,iter=100,sample=1e-5,
                 alpha=0.025, min_alpha=0.025,dbow_words=1)
         model_docs.build_vocab(doc_td)
-        model_docs.save('models/doc2vec_trigram_%ddims_vocab.model'%ndims)
+        model_docs.save('%s/doc2vec_trigram_%ddims_vocab.model'%(modeldir,ndims))
     print('learning model')
     for epoch in range(10):
         random.shuffle(doc_td)
@@ -56,6 +56,6 @@ else:
                             epochs=model_docs.iter)
         model_docs.alpha-=.002
         model_docs.min_alpha=model_docs.alpha
-        model_docs.save('models/doc2vec_trigram_%ddims.model'%ndims)
-        with open('model.txt','a') as f:
+        model_docs.save('%s/doc2vec_trigram_%ddims.model'%(modeldir,ndims))
+        with open('%s/model.txt'%modeldir,'a') as f:
             f.write('%f\n'%model_docs.alpha)
