@@ -61,7 +61,7 @@ except:
     data=data[s>0,:]
     desmtx=desmtx.ix[s>0]
     desmtx.to_csv('%s/desmtx_cleaned.csv'%datadir)
-    pickle.dump(data,open('%s/neurosynth_reduced_cleaned.pkl'%datadir),'wb'))
+    pickle.dump(data,open('%s/neurosynth_reduced_cleaned.pkl'%datadir,'wb'))
     print('created and saved cleaned data')
 
 assert data.shape[0]==desmtx.shape[0]
