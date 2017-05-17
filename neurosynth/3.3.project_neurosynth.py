@@ -100,9 +100,9 @@ else:
         abstracts_cleaned[k],_=clean_abstract(abstracts[k])
     pickle.dump(abstracts_cleaned,open('%s/ns_abstracts_cleaned.pkl'%datadir,'wb'))
 # get vector projection for each abstract
-ndims=50
+ndims=300
 print('loading Doc2Vec model')
-model_docs=Doc2Vec.load('../data/models/doc2vec/doc2vec_trigram_%ddims.model'%ndims)
+model_docs=Doc2Vec.load('../models/doc2vec/doc2vec_trigram_%ddims.model'%ndims)
 
 print('getting vector projections')
 pmids=list(desmtx.index)
