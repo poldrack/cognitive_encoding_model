@@ -26,8 +26,18 @@ else:
     abstracts={}
     bad_pmids=[]
     for retstart in [0,6000]:
-        handle = Entrez.efetch(db="pubmed", retstart=retstart,retmax=6001,id=",".join(['%d'%i for i in pmids]), retmode="xml")
-        records=Entrez.read(handle)
+        good_record=False
+        tryctr=0
+        while not good_record:
+            tryctr+=1
+            try:
+                handle = Entrez.efetch(db="pubmed", retstart=retstart,retmax=6001,id=",".join(['%d'%i for i in pmids]), retmode="xml")
+                records=Entrez.read(handle)
+            except:
+                print('retrying...')
+                if tryctr>5:
+                    break
+
         for i in records['PubmedArticle']:
             pmid=int(i['MedlineCitation']['PMID'])
             if pmid in abstracts or pmid in bad_pmids:
