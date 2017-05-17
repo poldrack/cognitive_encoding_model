@@ -12,9 +12,9 @@ nifti_masker = input_data.NiftiMasker(memory='nilearn_cache',
                                       standardize=False)
 n_clusters=2000
 
-if os.path.exists('ward.pkl'):
+if os.path.exists('../data/neurosynth/ward.pkl'):
     print('loading saved ward clustering')
-    ward=pickle.load(open('ward.pkl','rb'))
+    ward=pickle.load(open('../data/neurosynth/ward.pkl','rb'))
 else:
     print('runnign ward clustering')
     # The NiftiMasker will extract the data on a mask. We do not have a
@@ -24,7 +24,7 @@ else:
     # thus we need to use mask_strategy='epi' to compute the mask from the
     # EPI images
 
-    func_filename = 'all_ns_data.nii.gz'
+    func_filename = '../data/neurosynth/all_ns_data.nii.gz'
     # The fit_transform call computes the mask and extracts the time-series
     # from the files:
     fmri_masked = nifti_masker.fit_transform(func_filename)
@@ -48,54 +48,55 @@ else:
     ward.fit(fmri_masked)
     print("Ward agglomeration 2000 clusters: %.2fs" % (time.time() - start))
 
-    pickle.dump(ward,open('ward.pkl','wb'))
+    pickle.dump(ward,open('../data/neurosynth/ward.pkl','wb'))
 
     fmri_reduced = ward.transform(fmri_masked)
 
-    pickle.dump(fmri_reduced,open('neurosynth_reduced.pkl','wb'))
+    pickle.dump(fmri_reduced,open('../data/neurosynth/neurosynth_reduced.pkl','wb'))
 
 
 
 # plot results
+plot=False
+if plot:
+    from nilearn.plotting import plot_roi, plot_epi, show
+    fmri_mean = nifti_masker.fit_transform('../data/neurosynth/mean_ns_data.nii.gz')
 
-from nilearn.plotting import plot_roi, plot_epi, show
-fmri_mean = nifti_masker.fit_transform('mean_ns_data.nii.gz')
+    # Unmask the labels
 
-# Unmask the labels
+    # Avoid 0 label
+    labels = ward.labels_ + 1
+    labels_img = nifti_masker.inverse_transform(labels)
 
-# Avoid 0 label
-labels = ward.labels_ + 1
-labels_img = nifti_masker.inverse_transform(labels)
-
-from nilearn.image import mean_img
-mean_func_img = 'mean_ns_data.nii.gz'
+    from nilearn.image import mean_img
+    mean_func_img = 'mean_ns_data.nii.gz'
 
 
-first_plot = plot_roi(labels_img, mean_func_img, title="Ward parcellation",
-                      display_mode='xz')
+    first_plot = plot_roi(labels_img, mean_func_img, title="Ward parcellation",
+                          display_mode='xz')
 
-# common cut coordinates for all plots
-cut_coords = first_plot.cut_coords
-labels_img.to_filename('parcellation.nii.gz')
+    # common cut coordinates for all plots
+    cut_coords = first_plot.cut_coords
+    labels_img.to_filename('parcellation.nii.gz')
 
-# Display the original data
-plot_epi(nifti_masker.inverse_transform(fmri_mean),
-         cut_coords=cut_coords,
-         title='Original (%i voxels)' % fmri_mean.shape[1],
-         vmax=fmri_mean.max(), vmin=fmri_mean.min(),
-         display_mode='xz')
+    # Display the original data
+    plot_epi(nifti_masker.inverse_transform(fmri_mean),
+             cut_coords=cut_coords,
+             title='Original (%i voxels)' % fmri_mean.shape[1],
+             vmax=fmri_mean.max(), vmin=fmri_mean.min(),
+             display_mode='xz')
 
-# A reduced data can be create by taking the parcel-level average:
-# Note that, as many objects in the scikit-learn, the ward object exposes
-# a transform method that modifies input features. Here it reduces their
-# dimension
-fmri_reduced = ward.transform(fmri_mean)
+    # A reduced data can be create by taking the parcel-level average:
+    # Note that, as many objects in the scikit-learn, the ward object exposes
+    # a transform method that modifies input features. Here it reduces their
+    # dimension
+    fmri_reduced = ward.transform(fmri_mean)
 
-# Display the corresponding data compressed using the parcellation
-fmri_compressed = ward.inverse_transform(fmri_reduced)
-compressed_img = nifti_masker.inverse_transform(fmri_compressed)
+    # Display the corresponding data compressed using the parcellation
+    fmri_compressed = ward.inverse_transform(fmri_reduced)
+    compressed_img = nifti_masker.inverse_transform(fmri_compressed)
 
-plot_epi(compressed_img, cut_coords=cut_coords,
-         title='Compressed representation (2000 parcels)',
-         vmax=fmri_mean.max(), vmin=fmri_mean.min(),
-         display_mode='xz')
+    plot_epi(compressed_img, cut_coords=cut_coords,
+             title='Compressed representation (2000 parcels)',
+             vmax=fmri_mean.max(), vmin=fmri_mean.min(),
+             display_mode='xz')
