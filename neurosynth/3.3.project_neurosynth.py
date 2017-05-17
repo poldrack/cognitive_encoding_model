@@ -80,15 +80,15 @@ def clean_abstract(a):
     docsplit=[wordnet_lemmatizer.lemmatize(i) for i in nltk.tokenize.word_tokenize(abstract) if len(i)>1]
     return docsplit,abstract
 
-if os.path.exists('%s/ns_abstracts_cleaned.pkl'%datadir)):
-    abstracts_cleaned=pickle.load(open('%s/ns_abstracts_cleaned.pkl'%datadir),'rb'))
+if os.path.exists('%s/ns_abstracts_cleaned.pkl'%datadir):
+    abstracts_cleaned=pickle.load(open('%s/ns_abstracts_cleaned.pkl'%datadir,'rb'))
     print('loaded ')
 else:
     print('cleaning abstracts')
     abstracts_cleaned={}
     for k in abstracts.keys():
         abstracts_cleaned[k],_=clean_abstract(abstracts[k])
-    pickle.dump(abstracts_cleaned,open('%s/ns_abstracts_cleaned.pkl'%datadir),'wb'))
+    pickle.dump(abstracts_cleaned,open('%s/ns_abstracts_cleaned.pkl'%datadir,'wb'))
 # get vector projection for each abstract
 ndims=50
 print('loading Doc2Vec model')
