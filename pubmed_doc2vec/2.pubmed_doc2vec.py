@@ -19,7 +19,7 @@ from joblib import Parallel, delayed
 sys.path.insert(0,'../utils')
 from utils import text_cleanup, get_journals
 datadir='../data/pubmed'
-modeldir='../models/word2vec'
+modeldir='../models/doc2vec'
 if not os.path.exists(modeldir):
     os.makedirs(modeldir)
 
