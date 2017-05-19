@@ -151,6 +151,8 @@ class EncodingModel:
             nvars=self.data.shape[1]
     
         if self.shuffle:
+            if self.verbose:
+                print('shuffling data')
             shufflag='_shuffle'
         else:
             shufflag=''
@@ -168,6 +170,7 @@ class EncodingModel:
                                         solver=self.solver,
                                         n_jobs=self.n_jobs)
                 if self.shuffle==True:
+                    # shuffle training data 
                     numpy.random.shuffle(traindata)
                 cv.fit(Xtrain,traindata)
                 p[test,i]=cv.predict(Xtest)
@@ -181,7 +184,7 @@ class EncodingModel:
 if __name__=="__main__":
 
     en=EncodingModel('../data/neurosynth/desmtx.csv','test',
-                     prototype=True,n_jobs=1)
+                     prototype=True,n_jobs=1,shuffle=True)
     en.load_data()
     en.load_desmtx()
     en.clean_data_and_design()
