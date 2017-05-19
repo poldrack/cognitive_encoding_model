@@ -181,7 +181,7 @@ class EncodingModel:
             pickle.dump((p,output,testsplits),open(os.path.join(self.outdir,'results_%s_%s_%s.pkl'%(shufflag,self.hash,self.timestamp)),'wb'))
         return (p,output,testsplits)
         
-if __name__=="__main__":
+if __name__=="__test__":
 
     en=EncodingModel('../data/neurosynth/desmtx.csv','test',
                      prototype=True,n_jobs=1,shuffle=True)
@@ -190,7 +190,7 @@ if __name__=="__main__":
     en.clean_data_and_design()
     results=en.estimate_model()
 
-if __name__=="__foo__":
+if __name__=="__main__":
     
     parser = argparse.ArgumentParser()
     parser.add_argument('-v',"--verbose", help="increase output verbosity",
@@ -221,17 +221,8 @@ if __name__=="__foo__":
                         required=True)
     args=parser.parse_args()
 
-    args.prototype=True
-    args.minstudies=200
     if args.verbose:
         print('ARGS:',args)
-
-    if args.shuffle:
-        shuf_flag='_shuffle_%s'%'%08x'%random.getrandbits(32)
-        if args.verbose:
-            print('SHUFFLING DATA')
-    else:
-        shuf_flag=''
 
     em=EncodingModel(args.desmtx,args.flag,verbose=args.verbose,
                 n_jobs=args.n_jobs,minstudies=args.minstudies,
@@ -240,5 +231,7 @@ if __name__=="__foo__":
     em.load_data()
     em.load_desmtx()
     em.clean_data_and_design()
+    results=en.estimate_model()
+
 
  
