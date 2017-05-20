@@ -1,4 +1,40 @@
 # use neo4j cog atlas database to expand an ontology mapping
+# first need to run neo4j using docker, ala these instructions from Ross
+"""
+Code is on my tasks_api branch:
+
+https://github.com/rwblair/cogat/tree/tasks_api
+
+Once cloned run a `docker-compose build` or the like. This will take awhile, the mongo, and neo images are quite large. I am also trying to import some of the data on container build so after awhile you might see some output that looks like tasks and such being created. Once this is done do a `docker-compose up` and go to either the neo4j end point at 192.168.99.100:7474 or the website itself on port 80 to verify that some nodes were imported.
+
+The next step is to get the remaining information imported. This requires mysql. Hopefully it will be as simple as :
+
+brew install mysql
+brew services start mysql
+mysql -uroot -dcogat < cogat-2017-03-23.sql
+
+I will send you a dropbox invite to the sql file for that database backup.
+
+Next setup or use an existing python3 environment, and install py2neo and pymysql from pip. The cogat containers should be up and running for this. From the root code directory run `python mysql2neo.py` You should see a variety of types of nodes being created.
+
+pip install "py2neo<3"
+
+For the IP address I assume you are still using boot to docker, if the IP of your containers is different you will need to update line 7 in mysql2neo.py.
+
+Forgot to add, if there are no nodes in the database after the containers are built you can run the following to import data:
+
+docker-compose run --rm uwsgi python scripts/migrate_database.py
+
+If it complains about cognitiveatlas library not being installed then run:
+
+docker-compose run --rm uwsgi bash
+> $pip install cognitiveatlas
+> $python scripts/migrate_database.py
+
+also see this gist: https://gist.github.com/anonymous/37fd3d97793140caf69d9d438aeb55b3
+
+
+"""
 
 from py2neo import Graph, Node, Relationship
 import pandas
@@ -93,6 +129,6 @@ def test_tasks():
         print(task['t'].properties)
 
 if __name__=='__main__':
-    desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
+    desmtx=pandas.read_csv('../data/neurosynth/desmtx_cleaned.csv',index_col=0)
     dm=expand_desmtx(desmtx.copy())
-    dm.to_csv('data/desmtx_expanded.csv')
+    dm.to_csv('../data/neurosynth/desmtx_cleaned_expanded.csv')
