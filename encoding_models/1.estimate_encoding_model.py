@@ -44,6 +44,8 @@ if __name__=="__main__":
                         action='store_true')
     parser.add_argument('-s',"--shuffle", help="shuffle target variable",
                         action='store_true')
+    parser.add_argument('-n',"--nocv", help="run model on full data",
+                        action='store_true')
     parser.add_argument('-d',"--desmtx", help="design matrix file",
                         required=True)
     parser.add_argument('-f',"--flag", help="flag for output naming",
@@ -60,4 +62,7 @@ if __name__=="__main__":
     em.load_data()
     em.load_desmtx()
     em.clean_data_and_design()
-    results=em.estimate_model()
+    if args.nocv:
+        results=em.estimate_model_nocv()
+    else:
+        results=em.estimate_model()
