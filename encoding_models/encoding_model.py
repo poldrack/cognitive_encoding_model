@@ -4,6 +4,7 @@ class definition for encoding models
 
 import os,datetime,sys
 from sklearn.linear_model import LogisticRegressionCV
+from sklearn.model_selection import KFold
 
 from sklearn.metrics import f1_score
 from joblib import Parallel, delayed
