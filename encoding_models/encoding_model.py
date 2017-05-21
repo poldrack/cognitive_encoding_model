@@ -4,7 +4,6 @@ class definition for encoding models
 
 import os,datetime,sys
 from sklearn.linear_model import LogisticRegressionCV
-from sklearn.model_selection import KFold,StratifiedKFold
 
 from sklearn.metrics import f1_score
 from joblib import Parallel, delayed
@@ -75,7 +74,7 @@ class EncodingModel:
         with open(self.logfile,'a') as f:
             f.write(info+'\n')
 
-    def load_data(self,infile='neurosynth/neurosynth_reduced.pkl'):
+    def load_data(self,infile='neurosynth/neurosynth_reduced_cleaned.pkl'):
         self.data=pickle.load(open(os.path.join(self.datadir,infile),'rb'))
         self.log_info('datafile: %s'%os.path.join(self.datadir,infile))
 
@@ -159,3 +158,27 @@ class EncodingModel:
         if save_results:
             pickle.dump((p,output,testsplits),open(os.path.join(self.outdir,'results_%s_%s_%s.pkl'%(shufflag,self.hash,self.timestamp)),'wb'))
         return (p,output,testsplits)
+
+    def estimate_model_nocv(self,save_results=True):
+        if self.verbose:
+            print('estimating logistic regression model on full dataset (no CV)')
+
+        if self.prototype:
+            print('using prototype, only 1 variable')
+            nvars=1
+        else:
+            nvars=self.data.shape[1]
+
+        coefs=numpy.zeros((self.data.shape[1],self.desmtx.shape[1]))
+        p=numpy.zeros(self.data.shape)
+        for i in range(nvars):
+            cv=LogisticRegressionCV(Cs=self.n_Cs,penalty=self.penalty,
+                                    class_weight='balanced',
+                                    solver=self.solver,
+                                    n_jobs=self.n_jobs)
+            cv.fit(self.desmtx.values,self.data[:,i])
+            coefs[i,:]=cv.coef_
+            p[:,i]=cv.predict(self.desmtx.values)
+        if save_results:
+            pickle.dump((p,coefs),open(os.path.join(self.outdir,'fulldata_results.pkl'),'wb'))
+        return (p,coefs)
