@@ -9,22 +9,6 @@ from sklearn.metrics import f1_score,jaccard_similarity_score
 import glob
 from joblib import Parallel, delayed
 
-infile=sys.argv[1]
-n_jobs=24
-
-assert os.path.exists(infile)
-outfile=infile.replace('results','predacc')
-assert outfile is not infile
-
-print('will save results to:',outfile)
-results=pickle.load(open(infile,'rb'))
-# load data and compute dice for each study
-desmtx=pandas.read_csv('../data/neurosynth/desmtx_cleaned.csv',index_col=0)
-data=pickle.load(open('../data/neurosynth/neurosynth_reduced_cleaned.pkl','rb'))
-
-pred=results[0]
-
-
 def test_match(data1,data2,pred1,pred2,scorer=jaccard_similarity_score):
     f1_d1_p1=scorer(data1,pred1)
     f1_d2_p1=scorer(data2,pred1)
@@ -35,20 +19,36 @@ def test_match(data1,data2,pred1,pred2,scorer=jaccard_similarity_score):
     else:
         return 0
 
-# compare all possible combinations of images
-print('getting coordinates')
-coords=[]
-assert len(results[2])==4
+if __name__=='__main__':
+    infile=sys.argv[1]
+    n_jobs=24
 
-for fold in range(len(results[2])):
-    test=results[2][fold]
-    for i in range(test.shape[0]):
-        for j in range(i+1, test.shape[0]):
-            coords.append((test[i],test[j]))
+    assert os.path.exists(infile)
+    outfile=infile.replace('results','predacc')
+    assert outfile is not infile
+
+    print('will save results to:',outfile)
+    results=pickle.load(open(infile,'rb'))
+    # load data and compute dice for each study
+    desmtx=pandas.read_csv('../data/neurosynth/desmtx_cleaned.csv',index_col=0)
+    data=pickle.load(open('../data/neurosynth/neurosynth_reduced_cleaned.pkl','rb'))
+
+    pred=results[0]
+
+    # compare all possible combinations of images
+    print('getting coordinates')
+    coords=[]
+    assert len(results[2])==4
+
+    for fold in range(len(results[2])):
+        test=results[2][fold]
+        for i in range(test.shape[0]):
+            for j in range(i+1, test.shape[0]):
+                coords.append((test[i],test[j]))
 
 
-#coords=coords[:8]
+    #coords=coords[:8]
 
-print("computing accuracies")
-accuracy_list=Parallel(n_jobs=n_jobs)(delayed(test_match)(data[i,:],data[j,:],pred[i,:],pred[j,:]) for i,j in coords)
-pickle.dump((coords,accuracy_list),open(outfile,'wb'))
+    print("computing accuracies")
+    accuracy_list=Parallel(n_jobs=n_jobs)(delayed(test_match)(data[i,:],data[j,:],pred[i,:],pred[j,:]) for i,j in coords)
+    pickle.dump((coords,accuracy_list),open(outfile,'wb'))
