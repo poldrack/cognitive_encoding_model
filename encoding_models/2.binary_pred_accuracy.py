@@ -21,10 +21,16 @@ def test_match(data1,data2,pred1,pred2,scorer=jaccard_similarity_score):
 
 if __name__=='__main__':
     infile=sys.argv[1]
+    if len(sys.argv)>2:
+      testmode=True
+    else:
+      testmode=False
     n_jobs=24
 
     assert os.path.exists(infile)
     outfile=infile.replace('results','predacc')
+    if testmode:
+        outfile='test.pkl'
     assert outfile is not infile
 
     print('will save results to:',outfile)
@@ -42,6 +48,8 @@ if __name__=='__main__':
 
     for fold in range(len(results[2])):
         test=results[2][fold]
+        if testmode:
+            test=test[:5]
         for i in range(test.shape[0]):
             for j in range(i+1, test.shape[0]):
                 coords.append((test[i],test[j]))
@@ -51,4 +59,5 @@ if __name__=='__main__':
 
     print("computing accuracies")
     accuracy_list=Parallel(n_jobs=n_jobs)(delayed(test_match)(data[i,:],data[j,:],pred[i,:],pred[j,:]) for i,j in coords)
+
     pickle.dump((coords,accuracy_list),open(outfile,'wb'))
