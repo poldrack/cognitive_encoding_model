@@ -32,7 +32,7 @@ if __name__=='__main__':
     # load data and compute dice for each study
     desmtx=pandas.read_csv('../data/neurosynth/desmtx_cleaned.csv',index_col=0)
     data=pickle.load(open('../data/neurosynth/neurosynth_reduced_cleaned.pkl','rb'))
-
+    data=(data>0).astype('int')
     pred=results[0]
 
     # compare all possible combinations of images
