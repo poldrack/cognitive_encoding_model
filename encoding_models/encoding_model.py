@@ -153,7 +153,7 @@ class EncodingModel:
         if self.verbose:
             print(output[-1])
         if save_results:
-            pickle.dump((p,output,testsplits),open(os.path.join(self.outdir,'results_%s_%s_%s.pkl'%(shufflag,self.hash,self.timestamp)),'wb'))
+            pickle.dump((p,output,testsplits),open(os.path.join(self.outdir,'results_%s_%s.pkl'%(shufflag,self.hash)),'wb'))
         return (p,output,testsplits)
 
     def estimate_model_nocv(self,save_results=True):
@@ -181,5 +181,5 @@ class EncodingModel:
             p[:,i]=cv.predict(self.desmtx.values)
             penalties[i]=cv.C_[0]
         if save_results:
-            pickle.dump((p,coefs,penalties),open(os.path.join(self.outdir,'fulldata_results.pkl'),'wb'))
+            pickle.dump((p,coefs,penalties),open(os.path.join(self.outdir,'fulldata_results_%s.pkl'%self.hash),'wb'))
         return (p,coefs,penalties)
