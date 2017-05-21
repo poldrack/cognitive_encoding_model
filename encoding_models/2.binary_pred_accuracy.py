@@ -10,24 +10,18 @@ import glob
 from joblib import Parallel, delayed
 
 infile=sys.argv[1]
+n_jobs=48
+
 assert os.path.exists(infile)
-expflag='_'.join(os.path.basename(infile).split('.')[0].split('_')[2:])
-outfile='results/pred_accuracy_list_%s.pkl'%expflag
+outfile=infile.replace('results','predacc')
+assert outfile is not infile
+
 print('will save results to:',outfile)
 results=pickle.load(open(infile,'rb'))
 # load data and compute dice for each study
-desmtx=pandas.read_csv('data/desmtx.csv',index_col=0)
-data=pickle.load(open('data/neurosynth_reduced.pkl','rb'))
+desmtx=pandas.read_csv('../data/neurosynth/desmtx_cleaned.csv',index_col=0)
+data=pickle.load(open('data/neurosynth/neurosynth_reduced_cleaned.pkl','rb'))
 
-s=numpy.sum(data,1)
-data=data[s>0,:]
-desmtx=desmtx.ix[s>0]
-data=(data>0).astype('int')
-
-# dupes=desmtx.duplicated()
-# desmtx=desmtx.ix[dupes==False]
-# data=data[dupes.values==False,:]
-#pred=results[0][numpy.where(dupes==False)]
 pred=results[0]
 
 
@@ -54,7 +48,7 @@ for fold in range(len(results[3])):
 
 
 #coords=coords[:8]
-n_jobs=48
+
 print("computing accuracies")
 accuracy_list=Parallel(n_jobs=n_jobs)(delayed(test_match)(data[i,:],data[j,:],pred[i,:],pred[j,:]) for i,j in coords)
 pickle.dump((coords,accuracy_list),open(outfile,'wb'))
