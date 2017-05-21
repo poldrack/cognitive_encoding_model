@@ -58,6 +58,8 @@ class EncodingModel:
             os.makedirs(self.outdir)
         self.logfile=os.path.join(self.outdir,'%s_log_%s'%(self.flag,self.hash))
         self.log_info('%s: start'%get_timestamp())
+        for v in vars(self):
+            self.log_info('%s:%s'%(v,str(vars(self)[v])))
         self.data=None
         self.desmtx=None
 
@@ -70,12 +72,12 @@ class EncodingModel:
 
     def load_data(self,infile='neurosynth/neurosynth_reduced_cleaned.pkl'):
         self.data=pickle.load(open(os.path.join(self.datadir,infile),'rb'))
-        self.log_info('datafile: %s'%os.path.join(self.datadir,infile))
+        self.log_info('loaded datafile: %s'%os.path.join(self.datadir,infile))
 
     def load_desmtx(self):
         if os.path.basename(self.desmtx_file).split('.')[-1]=='csv':
             self.desmtx=pandas.read_csv(self.desmtx_file,index_col=0)
-        self.log_info('desmtx:%s'%self.desmtx_file)
+        self.log_info('loaded desmtx:%s'%self.desmtx_file)
 
     def clean_data_and_design(self):
         if self.data is None:
