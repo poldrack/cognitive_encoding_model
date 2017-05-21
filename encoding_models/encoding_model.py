@@ -24,8 +24,8 @@ def get_timestamp():
 class EncodingModel:
     def __init__(self,desmtx_file,flag,verbose=True,n_jobs=-1,minstudies=0,
                  shuffle=False,prototype=False,datadir=None,outdir=None,
-                 binarize=True,n_folds=4,n_Cs=25,solver='lbfgs',
-                 penalty='l2',c_minexp=-5,c_maxexp=2):
+                 binarize=True,n_folds=4,n_Cs=16,solver='lbfgs',
+                 penalty='l2',c_minexp=-4,c_maxexp=2):
         self.desmtx_file=desmtx_file
         assert os.path.exists(self.desmtx_file)
         self.flag=flag
@@ -129,6 +129,7 @@ class EncodingModel:
         else:
             shufflag=''
 
+        Cs=numpy.logspace(self.c_minexp,self.c_maxexp,self.n_Cs)
         testsplits=[]
         for train, test in skf.split(self.desmtx):
             testsplits.append(test)
@@ -137,7 +138,6 @@ class EncodingModel:
                 testdata=self.data[test,i].copy()
                 Xtrain=self.desmtx.iloc[train]
                 Xtest=self.desmtx.iloc[test]
-                Cs=numpy.logspace(self.c_minexp,self.c_maxexp,self.n_Cs)
                 cv=LogisticRegressionCV(Cs=Cs,penalty=self.penalty,
                                         class_weight='balanced',
                                         solver=self.solver,

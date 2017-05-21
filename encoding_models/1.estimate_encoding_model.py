@@ -33,7 +33,7 @@ if __name__=="__main__":
     parser.add_argument("--minstudies", help="minimum number of nonzero entries in desmtx",type=int,
                             default=0)
     parser.add_argument("--n_Cs", help="number of C values",type=int,
-                            default=25)
+                            default=16)
     parser.add_argument("--penalty", help="penalty type for LR",
                         default='l2')
     parser.add_argument('-b',"--binarize", help="binarize data",
