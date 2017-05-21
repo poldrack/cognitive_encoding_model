@@ -16,15 +16,6 @@ import pandas,numpy
 import pickle
 
 
-def fit_lr(desmtx,data,solver='lbfgs',
-            penalty='l2',
-            n_jobs=-1,
-            n_Cs=25):
-        cv=LogisticRegressionCV(Cs=n_Cs,penalty=penalty,
-                                class_weight='balanced',
-                                solver=solver)
-        cv.fit(desmtx,data)
-        return cv
 
 def get_timestamp():
     return '{:%Y_%m_%d_%H_%M_%S}'.format(datetime.datetime.now())
@@ -34,7 +25,7 @@ class EncodingModel:
     def __init__(self,desmtx_file,flag,verbose=True,n_jobs=-1,minstudies=0,
                  shuffle=False,prototype=False,datadir=None,outdir=None,
                  binarize=True,n_folds=4,n_Cs=25,solver='lbfgs',
-                 penalty='l2'):
+                 penalty='l2',c_minexp=-5,c_maxexp=2):
         self.desmtx_file=desmtx_file
         assert os.path.exists(self.desmtx_file)
         self.flag=flag
@@ -49,6 +40,8 @@ class EncodingModel:
         self.timestamp=get_timestamp()
         self.hash='%08x'%random.getrandbits(32)
         self.n_Cs=n_Cs
+        self.c_minexp=c_minexp
+        self.c_maxexp=c_maxexp
         self.solver=solver
         self.penalty=penalty
         if datadir is None:
@@ -144,7 +137,8 @@ class EncodingModel:
                 testdata=self.data[test,i].copy()
                 Xtrain=self.desmtx.iloc[train]
                 Xtest=self.desmtx.iloc[test]
-                cv=LogisticRegressionCV(Cs=self.n_Cs,penalty=self.penalty,
+                Cs=numpy.logspace(self.c_minexp,self.c_maxexp,self.n_Cs)
+                cv=LogisticRegressionCV(Cs=Cs,penalty=self.penalty,
                                         class_weight='balanced',
                                         solver=self.solver,
                                         n_jobs=self.n_jobs)
@@ -171,15 +165,19 @@ class EncodingModel:
             nvars=self.data.shape[1]
 
         coefs=numpy.zeros((self.data.shape[1],self.desmtx.shape[1]))
+        Cs=numpy.logspace(self.c_minexp,self.c_maxexp,self.n_Cs)
+
         p=numpy.zeros(self.data.shape)
+        penalties=numpy.zeros(nvars)
         for i in range(nvars):
-            cv=LogisticRegressionCV(Cs=self.n_Cs,penalty=self.penalty,
+            cv=LogisticRegressionCV(Cs=Cs,penalty=self.penalty,
                                     class_weight='balanced',
                                     solver=self.solver,
                                     n_jobs=self.n_jobs)
             cv.fit(self.desmtx.values,self.data[:,i])
             coefs[i,:]=cv.coef_
             p[:,i]=cv.predict(self.desmtx.values)
+            penalties[i]=cv.C_[0]
         if save_results:
-            pickle.dump((p,coefs),open(os.path.join(self.outdir,'fulldata_results.pkl'),'wb'))
-        return (p,coefs)
+            pickle.dump((p,coefs,penalties),open(os.path.join(self.outdir,'fulldata_results.pkl'),'wb'))
+        return (p,coefs,penalties)
