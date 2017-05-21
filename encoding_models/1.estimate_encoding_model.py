@@ -12,12 +12,12 @@ from encoding_model import EncodingModel
 
 if __name__=="__test__":
 
-    en=EncodingModel('../data/neurosynth/desmtx.csv','test',
-                     prototype=True,n_jobs=1,shuffle=True)
+    en=EncodingModel('../data/neurosynth/desmtx_cleaned.csv','test',
+                     prototype=True,n_jobs=1,shuffle=False)
     en.load_data()
     en.load_desmtx()
     en.clean_data_and_design()
-    results=en.estimate_model()
+    results=en.estimate_model_nocv()
 
 if __name__=="__main__":
 
@@ -60,4 +60,4 @@ if __name__=="__main__":
     em.load_data()
     em.load_desmtx()
     em.clean_data_and_design()
-    results=en.estimate_model()
+    results=em.estimate_model()
