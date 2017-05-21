@@ -10,7 +10,7 @@ import glob
 from joblib import Parallel, delayed
 
 infile=sys.argv[1]
-n_jobs=48
+n_jobs=24
 
 assert os.path.exists(infile)
 outfile=infile.replace('results','predacc')
@@ -20,7 +20,7 @@ print('will save results to:',outfile)
 results=pickle.load(open(infile,'rb'))
 # load data and compute dice for each study
 desmtx=pandas.read_csv('../data/neurosynth/desmtx_cleaned.csv',index_col=0)
-data=pickle.load(open('data/neurosynth/neurosynth_reduced_cleaned.pkl','rb'))
+data=pickle.load(open('../data/neurosynth/neurosynth_reduced_cleaned.pkl','rb'))
 
 pred=results[0]
 
@@ -38,10 +38,10 @@ def test_match(data1,data2,pred1,pred2,scorer=jaccard_similarity_score):
 # compare all possible combinations of images
 print('getting coordinates')
 coords=[]
-assert len(results[3])==4
+assert len(results[2])==4
 
-for fold in range(len(results[3])):
-    test=results[3][fold]
+for fold in range(len(results[2])):
+    test=results[2][fold]
     for i in range(test.shape[0]):
         for j in range(i+1, test.shape[0]):
             coords.append((test[i],test[j]))
