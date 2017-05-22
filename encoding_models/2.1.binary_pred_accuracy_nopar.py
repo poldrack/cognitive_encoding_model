@@ -43,14 +43,14 @@ if __name__=='__main__':
     data=(data>0).astype('int')
     pred=results[0]
     tmpdir='/scratch/01329/poldrack/tmp'
-    mmfile_data=os.path.join(tmpdir,'%s_data.mm'%os.path.basename(infile))
-    mmfile_pred=os.path.join(tmpdir,'%s_pred.mm'%os.path.basename(infile))
-    print('writing mm data to',mmfile_data)
-    print('writing mm pred to',mmfile_pred)
-    dump(data,mmfile_data)
-    dump(pred,mmfile_pred)
-    data = load(mmfile_data, mmap_mode='r')
-    pred = load(mmfile_pred, mmap_mode='r')
+    #mmfile_data=os.path.join(tmpdir,'%s_data.mm'%os.path.basename(infile))
+    #mmfile_pred=os.path.join(tmpdir,'%s_pred.mm'%os.path.basename(infile))
+    #print('writing mm data to',mmfile_data)
+    #print('writing mm pred to',mmfile_pred)
+    #dump(data,mmfile_data)
+    #dump(pred,mmfile_pred)
+    #data = load(mmfile_data, mmap_mode='r')
+    #pred = load(mmfile_pred, mmap_mode='r')
 
     # compare all possible combinations of images
     print('getting coordinates')
@@ -59,12 +59,12 @@ if __name__=='__main__':
 
     for fold in range(len(results[2])):
         test=results[2][fold]
-        if testmode:
-            test=test[:5]
         for i in range(test.shape[0]):
             for j in range(i+1, test.shape[0]):
                 coords.append((test[i],test[j]))
 
+    if testmode:
+            coords=coords[:10000]
 
     #coords=coords[:8]
     accuracy_list=[]
@@ -75,5 +75,5 @@ if __name__=='__main__':
     print(numpy.array(accuracy_list).mean(0))
 
     pickle.dump(accuracy_list,open(outfile,'wb'))
-    os.remove(mmfile_data)
-    os.remove(mmfile_pred)
+    #os.remove(mmfile_data)
+    #os.remove(mmfile_pred)
