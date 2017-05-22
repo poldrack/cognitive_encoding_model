@@ -134,6 +134,11 @@ class EncodingModel:
 
         Cs=numpy.logspace(self.c_minexp,self.c_maxexp,self.n_Cs)
         testsplits=[]
+
+        # shuffles along first axis
+        if self.shuffle==True:
+            numpy.random.shuffle(self.data)
+
         for train, test in skf.split(self.desmtx):
             testsplits.append(test)
             for i in range(nvars):
@@ -145,9 +150,8 @@ class EncodingModel:
                                         class_weight='balanced',
                                         solver=self.solver,
                                         n_jobs=self.n_jobs)
-                if self.shuffle==True:
-                    # shuffle training data
-                    numpy.random.shuffle(traindata)
+
+
                 cv.fit(Xtrain,traindata)
                 p[test,i]=cv.predict(Xtest)
         output.append([i,f1_score(self.data[:,i],p[:,i])])
