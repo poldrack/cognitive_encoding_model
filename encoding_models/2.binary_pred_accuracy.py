@@ -7,7 +7,7 @@ import pickle,sys,os
 import pandas,numpy
 from sklearn.metrics import f1_score,jaccard_similarity_score
 import glob
-from joblib import Parallel, delayed
+from joblib import Parallel, delayed,load,dump
 
 def test_match(data,pred,c,scorer=jaccard_similarity_score):
     #print(c)
@@ -42,11 +42,15 @@ if __name__=='__main__':
     data=pickle.load(open('../data/neurosynth/neurosynth_reduced_cleaned.pkl','rb'))
     data=(data>0).astype('int')
     pred=results[0]
-
-    dump(data,'data.mm')
-    dump(pred,'pred.mm')
-    data = load('data.mm', mmap_mode='r')
-    pred = load('pred.mm', mmap_mode='r')
+    tmpdir='/scratch/01329/poldrack/tmp'
+    mmfile_data=os.path.join(tmpdir,'%s_data.mm'%os.path.basename(infile))
+    mmfile_pred=os.path.join(tmpdir,'%s_pred.mm'%os.path.basename(infile))
+    print('writing mm data to',mmfile_data)
+    print('writing mm pred to',mmfile_pred)
+    dump(data,mmfile_data)
+    dump(pred,mmfile_pred)
+    data = load(mmfile_data, mmap_mode='r')
+    pred = load(mmfile_pred, mmap_mode='r')
 
     # compare all possible combinations of images
     print('getting coordinates')
@@ -69,5 +73,5 @@ if __name__=='__main__':
     print(numpy.array(accuracy_list).mean(0))
 
     pickle.dump(accuracy_list,open(outfile,'wb'))
-    os.remove('data.mm')
-    os.remove('pred.mm')
+    os.remove(mmfile_data)
+    os.remove(mmfile_pred)

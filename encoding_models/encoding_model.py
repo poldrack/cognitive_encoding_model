@@ -10,7 +10,7 @@ from sklearn.metrics import f1_score
 from joblib import Parallel, delayed
 
 import random
-from inspect import signature
+import socket
 
 import pandas,numpy
 import pickle
@@ -60,6 +60,7 @@ class EncodingModel:
         self.log_info('%s: start'%get_timestamp())
         for v in vars(self):
             self.log_info('%s:%s'%(v,str(vars(self)[v])))
+        self.log_info('Hostname:'+socket.gethostbyaddr(socket.gethostname())[0])
         self.data=None
         self.desmtx=None
 
