@@ -9,15 +9,17 @@ from sklearn.metrics import f1_score,jaccard_similarity_score
 import glob
 from joblib import Parallel, delayed
 
-def test_match(data1,data2,pred1,pred2,scorer=jaccard_similarity_score):
-    f1_d1_p1=scorer(data1,pred1)
-    f1_d2_p1=scorer(data2,pred1)
-    f1_d1_p2=scorer(data1,pred2)
-    f1_d2_p2=scorer(data2,pred2)
+def test_match(data,pred,c,scorer=jaccard_similarity_score):
+    #print(c)
+    i,j=c
+    f1_d1_p1=scorer(data[i,:],pred[i,:])
+    f1_d2_p1=scorer(data[j,:],pred[i,:])
+    f1_d1_p2=scorer(data[i,:],pred[j,:])
+    f1_d2_p2=scorer(data[j,:],pred[j,:])
     if (f1_d1_p1 > f1_d2_p1) and (f1_d2_p2>f1_d1_p2):
-        return 1
+        return i,j,1
     else:
-        return 0
+        return i,j,0
 
 if __name__=='__main__':
     infile=sys.argv[1]
@@ -41,6 +43,11 @@ if __name__=='__main__':
     data=(data>0).astype('int')
     pred=results[0]
 
+    dump(data,'data.mm')
+    dump(pred,'pred.mm')
+    data = load('data.mm', mmap_mode='r')
+    pred = load('pred.mm', mmap_mode='r')
+
     # compare all possible combinations of images
     print('getting coordinates')
     coords=[]
@@ -58,6 +65,9 @@ if __name__=='__main__':
     #coords=coords[:8]
 
     print("computing accuracies")
-    accuracy_list=Parallel(n_jobs=n_jobs)(delayed(test_match)(data[i,:],data[j,:],pred[i,:],pred[j,:]) for i,j in coords)
+    accuracy_list=Parallel(n_jobs=n_jobs, verbose=5)(delayed(test_match)(data,pred,c) for c in coords)
+    print(numpy.array(accuracy_list).mean(0))
 
-    pickle.dump((coords,accuracy_list),open(outfile,'wb'))
+    pickle.dump(accuracy_list,open(outfile,'wb'))
+    os.remove('data.mm')
+    os.remove('pred.mm')
