@@ -12,14 +12,14 @@ def vector_corr(i,data):
     ala Kay et al., 2008
     """
     corr_all=numpy.zeros(data.shape[0])
-    for j in range(data.shape[0]):
+    for j in range(i,data.shape[0]):
         corr_all[j]=numpy.corrcoef(data[i,:],data[j,:])[0,1]
     return corr_all
 
 data=pandas.read_csv('../data/neurosynth/ns_doc2vec_300dims_projection.csv',index_col=0)
 data=data.values
 
-testmode=True
+testmode=False
 
 if testmode:
     data=data[:5,:]
