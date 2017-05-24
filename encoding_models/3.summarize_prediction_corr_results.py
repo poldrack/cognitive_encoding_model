@@ -19,6 +19,7 @@ for i,p in enumerate(predacc_files_shuf):
     if not model in results['shuf']:
         results['shuf'][model]=[]
     results['shuf'][model].append(numpy.mean([x[2] for x in p]))
+    print(results['shuf'][model][-1])
 pickle.dump(results,open('predacc_results.pkl','wb'))
 for model in results['shuf'].keys():
     print(model,results['noshuf'][model],scipy.stats.scoreatpercentile(results['shuf'][model],95))
