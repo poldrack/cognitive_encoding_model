@@ -2,7 +2,7 @@
 compute simlarity of inferred vectors between all neurosynth datasets
 """
 
-import os
+import os,pickle
 import numpy,pandas
 from joblib import Parallel, delayed,load,dump
 
@@ -16,7 +16,7 @@ def vector_corr(i,data):
         corr_all[j]=numpy.corrcoef(data[i,:],data[j,:])[0,1]
     return corr_all
 
-data=pandas.read_csv('ns_doc2vec_300dims_projection.csv')
+data=pandas.read_csv('../data/neurosynth/ns_doc2vec_300dims_projection.csv')
 data=data.values
 
 testmode=True
