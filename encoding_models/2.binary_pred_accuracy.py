@@ -42,7 +42,7 @@ if __name__=='__main__':
     data=pickle.load(open('../data/neurosynth/neurosynth_reduced_cleaned.pkl','rb'))
     data=(data>0).astype('int')
     pred=results[0]
-    tmpdir='/scratch/01329/poldrack/tmp'
+    tmpdir='.' #'/scratch/01329/poldrack/tmp'
     mmfile_data=os.path.join(tmpdir,'%s_data.mm'%os.path.basename(infile))
     mmfile_pred=os.path.join(tmpdir,'%s_pred.mm'%os.path.basename(infile))
     print('writing mm data to',mmfile_data)
@@ -59,12 +59,13 @@ if __name__=='__main__':
 
     for fold in range(len(results[2])):
         test=results[2][fold]
-        if testmode:
-            test=test[:5]
         for i in range(test.shape[0]):
             for j in range(i+1, test.shape[0]):
                 coords.append((test[i],test[j]))
 
+
+    if testmode:
+            coords=coords[:10000]
 
     #coords=coords[:8]
 
