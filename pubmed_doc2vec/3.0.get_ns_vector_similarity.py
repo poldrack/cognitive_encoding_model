@@ -4,7 +4,7 @@ compute simlarity of inferred vectors between all neurosynth datasets
 
 import os
 import numpy,pandas
-from joblib import Parallel, delayed
+from joblib import Parallel, delayed,load,dump
 
 def vector_corr(i,data):
     """
@@ -16,7 +16,20 @@ def vector_corr(i,data):
         corr_all[j]=numpy.corrcoef(data[i,:],data[j,:])[0,1]
     return corr_all
 
-data=numpy.load('ns_inferred_vectors.npy')
-results=Parallel(n_jobs=20)(delayed(vector_corr)(i,data) for i in range(data.shape[0]))
+data=pandas.read_csv('ns_doc2vec_300dims_projection.csv')
+data=data.values
 
-pickle.dump(results,open('ns_vector_similarity_results.pkl','wb'))
+testmode=True
+
+if testmode:
+    data=data[:5,:]
+
+dump(data,'ns_vectors.mm')
+
+data = load('ns_vectors.mm', mmap_mode='r')
+
+results=Parallel(n_jobs=24)(delayed(vector_corr)(i,data) for i in range(data.shape[0]))
+
+pickle.dump(results,open('../data/neurosynth/ns_vector_similarity_results.pkl','wb'))
+
+os.remove('ns_vectors.mm')
