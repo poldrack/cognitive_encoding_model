@@ -57,27 +57,23 @@ else:
 
 
 # plot results
+from nilearn.plotting import plot_roi, plot_epi, show
+fmri_mean = nifti_masker.fit_transform('../data/neurosynth/mean_ns_data.nii.gz')
+
+# Unmask the labels
+
+# Avoid 0 label
+labels = ward.labels_ + 1
+labels_img = nifti_masker.inverse_transform(labels)
+
+# common cut coordinates for all plots
+cut_coords = first_plot.cut_coords
+labels_img.to_filename('parcellation.nii.gz')
 plot=False
 if plot:
-    from nilearn.plotting import plot_roi, plot_epi, show
-    fmri_mean = nifti_masker.fit_transform('../data/neurosynth/mean_ns_data.nii.gz')
-
-    # Unmask the labels
-
-    # Avoid 0 label
-    labels = ward.labels_ + 1
-    labels_img = nifti_masker.inverse_transform(labels)
-
-    from nilearn.image import mean_img
-    mean_func_img = 'mean_ns_data.nii.gz'
-
 
     first_plot = plot_roi(labels_img, mean_func_img, title="Ward parcellation",
                           display_mode='xz')
-
-    # common cut coordinates for all plots
-    cut_coords = first_plot.cut_coords
-    labels_img.to_filename('parcellation.nii.gz')
 
     # Display the original data
     plot_epi(nifti_masker.inverse_transform(fmri_mean),
